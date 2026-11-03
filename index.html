@@ -1,0 +1,1530 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Digital signage · Ga Nhà hát Thành phố</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;700&display=swap">
+<style>
+/* Font UTM Avo: dùng bản cài trên máy; nếu chưa cài thì đặt UTMAvo.ttf và UTMAvo-Bold.ttf vào thư mục fonts/ cạnh file HTML. */
+@font-face{font-family:"UTM Avo";font-weight:400;src:local("UTM Avo"),local("UTM-Avo"),local("UTMAvo"),local("UTM Avo Regular"),url("fonts/UTMAvo.ttf") format("truetype")}
+@font-face{font-family:"UTM Avo";font-weight:700;src:local("UTM Avo Bold"),local("UTM-AvoBold"),local("UTMAvo-Bold"),local("UTM Avo"),url("fonts/UTMAvo-Bold.ttf") format("truetype")}
+:root{--pbg:#EEF2F0;--pfg:#13201C;--ppanel:#fff;--pline:#C9D4CF;--pbtn:#1B6B55;--pbtnink:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--pbg:#0A1110;--pfg:#E7EFEB;--ppanel:#121F1B;--pline:#243630;--pbtn:#5CCBA8;--pbtnink:#06231B}}
+:root[data-theme="dark"]{--pbg:#0A1110;--pfg:#E7EFEB;--ppanel:#121F1B;--pline:#243630;--pbtn:#5CCBA8;--pbtnink:#06231B}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+body{margin:0;height:100%;display:flex;flex-direction:column;background:var(--pbg);color:var(--pfg);font-family:"UTM Avo","Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.ctl{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;padding:10px 16px;background:var(--ppanel);border-bottom:1px solid var(--pline);font-size:14px}
+.ctl .g{display:flex;border:1px solid var(--pline);border-radius:8px;overflow:hidden}
+.ctl button{font:inherit;font-weight:700;padding:8px 14px;border:0;background:transparent;color:var(--pfg);cursor:pointer}
+.ctl button[aria-pressed="true"]{background:var(--pbtn);color:var(--pbtnink)}
+.ctl label{display:flex;gap:6px;align-items:center;cursor:pointer}
+.ctl .h{opacity:.65;margin-left:auto}
+.vp{flex:1;min-height:0;display:flex;justify-content:center;align-items:flex-start;overflow:hidden;padding:10px}
+.wrap{position:relative;flex:none}
+
+/* ===== KHUNG 1080×1920: các dải ngang tràn cạnh, ngăn bằng vạch kẻ, nhãn dọc bên trái ===== */
+.stage{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:0 0;display:flex;flex-direction:column;overflow:hidden;
+ font-family:"UTM Avo","Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+ background:var(--bg);color:var(--ink);--bg:#0A1218;--ink:#F2F6F4;--mu:#9DB1AA;--rule:#2B4450;--ac:#5CCBA8;--acink:#06231B}
+.stage[data-mode="tn"]{--ac:#E0B15A;--acink:#2A1D05}
+.stage[data-loc="tren"]{--bg:#fff;--ink:#13201C;--mu:#56675F;--rule:#D3DCD7;--ac:#1B6B55;--acink:#fff}
+.stage[data-loc="tren"][data-mode="tn"]{--ac:#8F6419;--acink:#fff}
+@keyframes fx{from{opacity:0}to{opacity:1}}
+/* đầu trang */
+.hd{height:150px;flex:none;position:relative;background:var(--ac);color:var(--acink);display:flex;align-items:center;gap:22px;padding:0 32px;overflow:hidden}
+.hd>*{position:relative;z-index:1}
+.hd .ph{position:absolute;z-index:0;left:36%;top:0;width:36%;height:100%;object-fit:cover;opacity:.85;-webkit-mask-image:linear-gradient(90deg,transparent,#000 35%,#000 65%,transparent);mask-image:linear-gradient(90deg,transparent,#000 35%,#000 65%,transparent)}
+.hd .ph.broken{display:none}
+.m1{width:88px;height:88px;background:var(--acink);color:var(--ac);display:grid;place-items:center;font-weight:700;font-size:42px;flex:none}
+.hd .nm{flex:1;min-width:0}
+.hd small{display:block;font-size:19px;letter-spacing:.1em;text-transform:uppercase;opacity:.85}
+.hd h1{margin:2px 0;font-size:54px;line-height:1.05;font-weight:700;letter-spacing:-.01em;white-space:nowrap}
+.hd .clk{text-align:right}.hd .clk b{display:block;font-size:84px;line-height:1;font-weight:700;font-variant-numeric:tabular-nums}
+.hd .clk span{font-size:20px;opacity:.85}
+.mb{height:52px;flex:none;display:flex}
+.mb div{display:flex;align-items:center;justify-content:center;font-size:25px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mu)}
+.mb .lc{width:230px;background:var(--ink);color:var(--bg)}
+.mb .md{flex:1;border-left:3px solid var(--rule);cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
+.mb .md.on{background:var(--ac);color:var(--acink);border-color:var(--ac)}
+/* dải */
+.b{display:flex;min-height:0;border-top:3px solid var(--rule);flex:none;position:relative}
+.b.f{flex:1 1 0}
+.rail{flex:none;width:46px;background:var(--ac);color:var(--acink);display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;font-size:19px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.rail span{transform:rotate(180deg);white-space:nowrap}
+.c{flex:1;min-width:0;min-height:0;position:relative;overflow:hidden;display:flex;flex-direction:column}
+.sep{height:8px;flex:none;background:var(--ac)}
+.win{position:absolute;inset:0;background:var(--rule)}
+.win iframe{position:absolute;left:0;top:0;border:0;transform-origin:0 0;background:#f6f6f6}
+.bgimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.bgimg.broken{display:none}
+/* bảng giờ tàu */
+.bt{height:270px}
+.tg{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0}
+.tcol{padding:10px 30px;display:flex;flex-direction:column;justify-content:center;min-width:0}
+.tcol+.tcol{border-left:3px solid var(--rule)}
+.tcol .d{font-size:28px;font-weight:700;line-height:1.15}
+.tcol .e{font-size:118px;font-weight:700;line-height:1.02;color:var(--ac);font-variant-numeric:tabular-nums;white-space:nowrap}
+.tcol .e small{font-size:32px;color:var(--mu);margin-left:10px;font-weight:400}
+.tcol .s{font-size:20px;color:var(--mu)}
+.tf{flex:none;padding:7px 30px;border-top:3px solid var(--rule);font-size:18px;color:var(--mu);display:flex;gap:12px;align-items:center}
+.dot{display:inline-block;width:14px;height:14px;border-radius:50%;background:#1B9A5B;flex:none}.dot.off{background:#D2443A}
+.tf b{color:var(--ink)}
+/* lối vào */
+.be{height:270px}
+.en{display:grid;grid-template-columns:1fr 1fr;flex:1;min-height:0;align-content:stretch}
+.en>div{display:grid;grid-template-columns:84px 1fr;align-items:center;padding:3px 20px 3px 22px;border-bottom:2px solid var(--rule)}
+.en>div:nth-child(even){border-left:3px solid var(--rule)}
+.en>div:last-child{grid-column:1/-1;border-bottom:0;border-left:0}
+.en .n{font-size:44px;font-weight:700;color:var(--ac);line-height:1}
+.en strong{display:block;font-size:19px;line-height:1.2}
+.en span{display:block;font-size:15px;color:var(--mu);line-height:1.25;margin-top:2px}
+/* thời tiết: ảnh tràn dải */
+.bw{height:200px;color:#fff}
+.bw .c{background:linear-gradient(120deg,#16302A,#0E1C24)}
+.bw .shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,12,16,.92) 0%,rgba(5,12,16,.78) 45%,rgba(5,12,16,.35) 100%)}
+.wc{position:absolute;inset:0;display:grid;grid-template-columns:350px 1fr;gap:0 26px;align-items:center;padding:0 30px}
+.wc .tp b{display:block;font-size:92px;line-height:1;font-weight:700;white-space:nowrap}
+.wc .tp span{font-size:20px;opacity:.85}
+.wc .lb{font-size:28px;font-weight:700;line-height:1.15}
+.wc .ad{font-size:20px;line-height:1.3;margin-top:4px}
+.wc .ad em{font-style:normal;font-weight:700;color:var(--ac);letter-spacing:.06em;text-transform:uppercase;font-size:16px;margin-right:8px}
+.wc .mt{font-size:14px;line-height:1.3;opacity:.7;margin-top:4px}
+/* cặp ảnh: quanh ga | ưu đãi */
+.bp{height:330px}
+.bp .c{flex-direction:row}
+.tile{flex:1;position:relative;overflow:hidden;color:#fff;background:linear-gradient(135deg,#1C3A33,#0E1C24)}
+.tile+.tile{border-left:3px solid var(--bg)}
+.tile .in>*{animation:fx .7s ease}
+.tile .shade{position:absolute;inset:0;background:linear-gradient(0deg,rgba(5,12,16,.94) 0%,rgba(5,12,16,.72) 55%,rgba(5,12,16,.08) 100%)}
+.tile .tx{position:absolute;left:0;right:0;bottom:0;padding:0 24px 16px}
+.tile .lab{position:absolute;z-index:2;left:0;top:0;padding:6px 16px;background:var(--ac);color:var(--acink);font-size:16px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.tile .pg{position:absolute;z-index:2;right:14px;top:8px;font-size:16px;opacity:.85}
+.tile .tag{display:inline-block;font-size:15px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ac)}
+.tile h3{margin:2px 0 6px;font-size:28px;line-height:1.15;font-weight:700}
+.tile p{margin:0;font-size:18px;line-height:1.3;opacity:.92}
+.tile .st{display:inline-block;margin-top:8px;padding:2px 12px;font-size:16px;font-weight:700;background:rgba(255,255,255,.2)}
+.tile .st.on{background:var(--ac);color:var(--acink)}
+/* trước khi đi tàu */
+.bs{height:232px}
+.pc{flex:1;display:grid;grid-template-columns:150px 1fr;align-items:center;padding:8px 30px 16px 8px;animation:fx .6s ease}
+.pc .pn{font-size:150px;line-height:1;font-weight:700;color:var(--ac);text-align:center}
+.pc b{display:block;font-size:28px;line-height:1.15;margin-bottom:4px}
+.pc p{margin:0;font-size:20px;line-height:1.32;color:var(--mu)}
+.pbar{position:absolute;left:0;right:0;bottom:0;height:8px;display:flex;gap:4px}
+.pbar i{flex:1;background:var(--rule)}.pbar i.on{background:var(--ac)}
+/* chân trang */
+.ft{height:40px;flex:none;background:var(--ink);color:var(--bg);display:flex;align-items:center;justify-content:space-between;gap:20px;padding:0 24px;font-size:15px}
+.ft span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ft span:first-child{flex:1;min-width:0}
+</style></head>
+<body>
+<div class="ctl" id="ctl">
+ <div class="g" id="gLoc"><button data-v="tren">Trên hầm</button><button data-v="duoi">Dưới hầm</button></div>
+ <div class="g" id="gMode"><button data-v="den">Đi để đến</button><button data-v="tn">Đi để trải nghiệm</button></div>
+ <label><input type="checkbox" id="auto"> Tự luân phiên 2 chế độ (45 giây)</label>
+ <button id="fs" style="border:1px solid var(--pline);border-radius:8px">Toàn màn hình</button>
+ <span class="h">Phím H: ẩn/hiện thanh này · #tren-den · #tren-tn · #duoi-den · #duoi-tn</span>
+</div>
+<div class="vp" id="vp"><div class="wrap" id="wrap"><div class="stage" id="stage"></div></div></div>
+<script type="text/html" id="xpSrc"><!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lối ra ga Nhà hát Thành phố</title>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<style>
+  /* Font UTM Avo: dùng bản cài trên máy; nếu chưa cài thì đặt file vào thư mục fonts/ cạnh file HTML
+     (UTMAvo.ttf và UTMAvo-Bold.ttf). */
+  @font-face {
+    font-family: "UTM Avo"; font-style: normal; font-weight: 400;
+    src: local("UTM Avo"), local("UTMAvo"), local("UTM Avo Regular"), url("fonts/UTMAvo.ttf") format("truetype");
+  }
+  @font-face {
+    font-family: "UTM Avo"; font-style: normal; font-weight: 700 800;
+    src: local("UTM Avo Bold"), local("UTM AvoBold"), local("UTMAvo-Bold"), url("fonts/UTMAvo-Bold.ttf") format("truetype");
+  }
+  /* Layout: bản đồ toàn màn hình, bảng điều khiển bên trái (desktop) hoặc phía dưới (điện thoại).
+     Màu: trắng đen, chỉ dùng đỏ của tuyến Metro số 1 để đánh dấu lối đang chọn. */
+  :root {
+    --bg: #f6f6f6;
+    --ink: #0d0d0d;
+    --mute: #6a6a6a;
+    --line: #d8d8d8;
+    --accent: #d7261e;
+    --route: #ee6b6e;   /* đường đi: đỏ nhạt như bản đồ trải nghiệm */
+    --place: #c8323d;   /* icon địa điểm: đỏ đậm */
+    --font-body: "UTM Avo", "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "UTM Avo", "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  body.dark {
+    --bg: #131313;
+    --ink: #f2f2f2;
+    --mute: #9b9b9b;
+    --line: #2d2d2d;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .app {
+    height: 100%;
+    display: grid;
+    grid-template-columns: 380px minmax(0, 1fr);
+  }
+  .panel {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    border-right: 1px solid var(--line);
+    background: var(--bg);
+    z-index: 2;
+  }
+  .head { padding: 24px 24px 16px; }
+  .kicker {
+    display: flex; align-items: center; gap: 10px;
+    font-family: var(--font-mono); font-size: 11px; font-weight: 500;
+    letter-spacing: .08em; text-transform: uppercase; color: var(--mute);
+  }
+  .line-badge {
+    background: var(--accent); color: #fff; font-weight: 700;
+    padding: 2px 7px; letter-spacing: .04em;
+  }
+  h1 {
+    margin: 14px 0 8px;
+    font-size: 30px; line-height: 1.1; font-weight: 800;
+    letter-spacing: -.02em; text-wrap: balance;
+  }
+  .lede { margin: 0; color: var(--mute); max-width: 34ch; }
+
+  /* Hai thẻ: Lối ra / Tuyến trải nghiệm */
+  .tabs { display: flex; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
+  .tab {
+    flex: 1; font: inherit; font-weight: 700; cursor: pointer; border: 0; padding: 10px 12px;
+    background: transparent; color: var(--ink);
+  }
+  .tab + .tab { border-left: 1px solid var(--ink); }
+  .tab[aria-selected="true"] { background: var(--ink); color: var(--bg); }
+  .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
+  .view { flex: 1; min-height: 0; overflow-y: auto; }
+  .view[hidden] { display: none; }
+
+  .exits { margin: 0; padding: 0; list-style: none; }
+  .exit {
+    display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 14px;
+    width: 100%; text-align: left; cursor: pointer;
+    padding: 14px 24px; background: none; color: inherit; font: inherit;
+    border: 0; border-bottom: 1px solid var(--line);
+  }
+  .exit:hover { background: color-mix(in srgb, var(--ink) 5%, transparent); }
+  .exit:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .num {
+    width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%;
+    background: #fff; color: #0d0d0d; border: 1.5px solid #0d0d0d;
+    font-family: var(--font-body); font-weight: 800; font-size: 13px; letter-spacing: -.02em;
+  }
+  .exit.active .num { border-color: var(--accent); color: var(--accent); border-width: 2.5px; }
+  .exit-title { font-weight: 700; font-size: 15px; }
+  .exit-note { color: var(--mute); font-size: 13px; margin-top: 2px; }
+  .coord { font-family: var(--font-mono); font-size: 11px; color: var(--mute); margin-top: 6px; }
+
+  /* Sở thích và tuyến gợi ý */
+  .ask { padding: 18px 24px 14px; border-bottom: 1px solid var(--line); }
+  .ask h2 { margin: 0 0 10px; font-size: 17px; font-weight: 800; letter-spacing: -.01em; }
+  .chips { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .chip {
+    font: inherit; font-weight: 500; cursor: pointer; text-align: left;
+    padding: 9px 12px; background: transparent; color: var(--ink); border: 1px solid var(--ink);
+  }
+  .chip.wide { grid-column: 1 / -1; }
+  .chip:hover { background: color-mix(in srgb, var(--ink) 7%, transparent); }
+  .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+  .chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .empty { padding: 18px 24px; margin: 0; color: var(--mute); }
+  .route { padding: 18px 24px 20px; border-bottom: 1px solid var(--line); }
+  .route h3 { margin: 0 0 4px; font-size: 16px; font-weight: 800; letter-spacing: -.01em; }
+  .route .intro { margin: 0 0 8px; color: var(--mute); font-size: 13px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px 14px; font-family: var(--font-mono); font-size: 11px; color: var(--mute); margin-bottom: 12px; }
+  .meta b { color: var(--accent); font-weight: 700; }
+  .stops { list-style: none; margin: 0 0 14px; padding: 0; counter-reset: s; }
+  .stops li { position: relative; padding: 0 0 12px 30px; counter-increment: s; }
+  .stops li::before {
+    content: counter(s); position: absolute; left: 0; top: 1px; width: 20px; height: 20px;
+    display: grid; place-items: center; border: 1.5px solid var(--ink); border-radius: 50%;
+    font-family: var(--font-mono); font-size: 10px; font-weight: 700; background: var(--bg);
+  }
+  .stops li::after { content: ""; position: absolute; left: 9.5px; top: 24px; bottom: 3px; width: 1px; background: var(--line); }
+  .stops li:last-child { padding-bottom: 0; }
+  .stops li:last-child::after { display: none; }
+  .stop-name { font-weight: 700; font-size: 13.5px; }
+  .stop-desc { color: var(--mute); font-size: 12.5px; }
+  .leg { margin-top: 8px; font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: var(--ink); }
+  .total { color: var(--ink); font-weight: 700; }
+  .src { margin: 0 0 12px; font-size: 12px; color: var(--mute); }
+  .btn {
+    font: inherit; font-weight: 500; cursor: pointer;
+    background: transparent; color: var(--ink);
+    border: 1px solid var(--ink); padding: 6px 12px;
+  }
+  .btn:hover { background: var(--ink); color: var(--bg); }
+  .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .note { margin: 0; padding: 14px 24px 18px; font-size: 12px; color: var(--mute); }
+
+  .planner { padding: 18px 24px 10px; }
+  .planner h3 { margin: 0 0 8px; font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--mute); }
+  .starts { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+  .start-chip {
+    width: 40px; height: 40px; border-radius: 50%; padding: 0; cursor: pointer;
+    background: #fff; color: #0d0d0d; border: 1.5px solid #0d0d0d;
+    font-family: var(--font-body); font-weight: 800; font-size: 13px; letter-spacing: -.02em;
+  }
+  .start-chip[aria-pressed="true"] { border-color: var(--accent); border-width: 2.5px; color: var(--accent); }
+  .start-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .dests { border-top: 1px solid var(--line); margin-bottom: 14px; }
+  .dest {
+    display: grid; grid-template-columns: 14px minmax(0, 1fr); gap: 12px; width: 100%; text-align: left; cursor: pointer;
+    padding: 10px 8px; background: none; color: inherit; font: inherit; border: 0; border-bottom: 1px solid var(--line);
+  }
+  .dest:hover { background: color-mix(in srgb, var(--ink) 5%, transparent); }
+  .dest[aria-pressed="true"] { background: color-mix(in srgb, var(--route) 16%, transparent); }
+  .dest:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .dest-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--place); margin-top: 5px; }
+  .btn.loop { width: 100%; padding: 10px 12px; font-weight: 700; background: var(--ink); color: var(--bg); }
+  .btn.loop[aria-pressed="true"] { background: var(--place); border-color: var(--place); color: #fff; }
+  .plan { padding: 16px 0 6px; }
+  .plan .hint { margin: 0; color: var(--mute); font-size: 13px; }
+  .sum-big { font-size: 22px; font-weight: 800; letter-spacing: -.01em; }
+  .sum-sub { color: var(--mute); font-size: 13px; }
+  .legs { list-style: none; margin: 14px 0 10px; padding: 0; }
+  .legs li { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 13px; }
+  .legs .lg-d { font-family: var(--font-mono); font-size: 11.5px; font-weight: 700; white-space: nowrap; color: var(--place); }
+
+  .mixnote { margin: 0 0 10px; font-size: 12.5px; color: var(--mute); }
+  .mixstops { list-style: none; margin: 14px 0 0; padding: 0; }
+  .mixstops li { display: grid; grid-template-columns: 14px minmax(0, 1fr); gap: 12px; padding: 8px 0; border-top: 1px solid var(--line); }
+  .mixstops i { width: 12px; height: 12px; border-radius: 50%; margin-top: 5px; }
+
+  .stage { position: relative; min-width: 0; min-height: 0; }
+  #map { position: absolute; inset: 0; }
+  .maplibregl-canvas { filter: grayscale(1) contrast(1.06); }
+
+  body.dark.nokey .maplibregl-canvas { filter: grayscale(1) invert(1) contrast(.9); }
+  .seg { position: absolute; top: 16px; right: 16px; z-index: 3; display: flex; border: 1px solid var(--ink); background: var(--bg); }
+  .seg button {
+    font: inherit; font-weight: 500; cursor: pointer; border: 0; padding: 6px 12px;
+    background: transparent; color: var(--ink);
+  }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+  .seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+  /* Ghim cố định: tròn trắng, viền đen, nhãn M1–M5 */
+  .pin {
+    width: 34px; height: 34px; border-radius: 50%;
+    display: grid; place-items: center; padding: 0; cursor: pointer;
+    background: #fff; color: #0d0d0d;
+    border: 1.5px solid #0d0d0d;
+    font-family: var(--font-body); font-weight: 800; font-size: 12px; letter-spacing: -.02em;
+    transition: border-color .15s, color .15s, width .15s, height .15s;
+  }
+  .pin.active { border-color: var(--accent); border-width: 2.5px; color: var(--accent); width: 42px; height: 42px; font-size: 14px; }
+  .pin:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .pin { z-index: 3; }
+
+  /* Icon địa điểm tham quan: tròn đỏ, số thứ tự trắng khi đi một vòng */
+  .stop-pin {
+    z-index: 2; width: 28px; height: 28px; border-radius: 50%;
+    display: grid; place-items: center; padding: 0; cursor: pointer;
+    background: var(--place); color: #fff; border: 2px solid #fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,.25);
+    font-family: var(--font-mono); font-weight: 700; font-size: 12px;
+    transition: width .15s, height .15s;
+  }
+  .stop-pin:empty::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #fff; }
+  .stop-pin.active { width: 36px; height: 36px; font-size: 13px; }
+  .stop-pin:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+  .maplibregl-popup-content { font-family: var(--font-body); font-size: 13px; font-weight: 700; padding: 8px 12px; border-radius: 0; color: #0d0d0d; }
+
+  /* Đường đi bộ vẽ bằng SVG phủ lên bản đồ để giữ màu đỏ (nền bản đồ bị đổi sang trắng đen) */
+  .route-svg { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+  .route-halo { fill: none; stroke: #fff; stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; opacity: .9; }
+  body.dark .route-halo { stroke: #131313; }
+  .route-line { fill: none; stroke: var(--route); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+  .route-arrows path { fill: none; stroke: var(--arrow, #fff); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+
+  .keybox {
+    position: absolute; left: 50%; bottom: 28px; transform: translateX(-50%);
+    z-index: 3; width: min(440px, calc(100% - 32px));
+    background: var(--bg); border: 1px solid var(--ink); padding: 16px; display: grid; gap: 10px;
+  }
+  .keybox[hidden] { display: none; }
+  .keybox strong { font-size: 14px; }
+  .keybox p { margin: 0; font-size: 12.5px; color: var(--mute); }
+  .keybox a { color: var(--ink); }
+  .keybox form { display: flex; gap: 8px; }
+  .keybox input {
+    flex: 1; min-width: 0; font-family: var(--font-mono); font-size: 12px;
+    padding: 7px 9px; border: 1px solid var(--ink); background: var(--bg); color: var(--ink);
+  }
+
+  @media (max-width: 760px) {
+    .app { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; }
+    .stage { order: 1; }
+    .panel { order: 2; border-right: 0; border-top: 1px solid var(--ink); max-height: 52vh; }
+    .head { padding: 16px 16px 10px; }
+    h1 { font-size: 22px; margin: 8px 0 4px; }
+    .lede { display: none; }
+    .exit { padding: 10px 16px; }
+    .ask { padding: 14px 16px 12px; }
+    .empty, .route, .note { padding-left: 16px; padding-right: 16px; }
+    .planner { padding-left: 16px; padding-right: 16px; }
+    .keybox { bottom: 16px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .pin, .exit { transition: none; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="panel">
+    <div class="head">
+      <div class="kicker"><span class="line-badge">M1</span><span>Metro số 1 · Bến Thành – Suối Tiên</span></div>
+      <h1>Ga Nhà hát Thành phố</h1>
+      <p class="lede">Chọn một lối ra để xem vị trí trên bản đồ, hoặc cho biết bạn thích gì để nhận gợi ý tuyến trải nghiệm.</p>
+    </div>
+
+    <div class="tabs" role="tablist" aria-label="Nội dung">
+      <button class="tab" role="tab" id="tabExits" aria-selected="true" aria-controls="viewExits" type="button">Lối ra</button>
+      <button class="tab" role="tab" id="tabRoutes" aria-selected="false" aria-controls="viewRoutes" type="button">Tuyến trải nghiệm</button>
+    </div>
+
+    <section class="view" id="viewExits" role="tabpanel" aria-labelledby="tabExits">
+      <ol class="exits" id="exitList"></ol>
+    </section>
+
+    <section class="view" id="viewRoutes" role="tabpanel" aria-labelledby="tabRoutes" hidden>
+      <div class="ask">
+        <h2>Bạn thích gì?</h2>
+        <div class="chips" id="chips" role="group" aria-label="Sở thích"></div>
+      </div>
+      <div id="routeList"></div>
+      <p class="note">Thời gian tính theo tốc độ đi bộ khoảng 5 km/h, chưa tính lúc dừng tham quan.</p>
+    </section>
+  </aside>
+
+  <main class="stage">
+    <div id="map" aria-label="Bản đồ các lối ra ga Nhà hát Thành phố"></div>
+    <div class="seg" role="group" aria-label="Kiểu bản đồ">
+      <button type="button" id="lightBtn" aria-pressed="true">Sáng</button>
+      <button type="button" id="darkBtn" aria-pressed="false">Tối</button>
+      <button type="button" id="keyBtn">MapTiler key</button>
+    </div>
+    <div class="keybox" id="keybox" hidden>
+      <strong>Dùng bản đồ MapTiler (tuỳ chọn)</strong>
+      <p>Mặc định trang dùng nền OpenFreeMap, không cần key. Muốn dùng MapTiler thì lấy key miễn phí tại <a href="https://cloud.maptiler.com/account/keys/" target="_blank" rel="noopener">cloud.maptiler.com</a>. Key được lưu trong trình duyệt của bạn.</p>
+      <form id="keyForm">
+        <input id="keyInput" type="text" placeholder="Dán key vào đây" autocomplete="off" spellcheck="false" required>
+        <button class="btn" type="submit">Áp dụng</button>
+      </form>
+    </div>
+  </main>
+</div>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"><\/script>
+<script>
+  // Có thể gán key trực tiếp ở đây, hoặc nhập qua hộp thoại trên bản đồ.
+  const MAPTILER_KEY = "";
+
+  // Toạ độ [kinh độ, vĩ độ] theo số liệu thực tế của M1–M5. Ghim đã khoá, không kéo được.
+  const EXITS = [
+    { id: 1, place: "Đường Lê Lợi, phía khách sạn Rex", note: "Cạnh Rex Arcade (4–6 Lê Lợi).", lngLat: [106.701719, 10.775458] },
+    { id: 2, place: "Đường Pasteur, gần quán kem Bạch Đằng", note: "Kết nối nhiều tuyến xe buýt.", lngLat: [106.701072, 10.774817] },
+    { id: 3, place: "Đường Lê Lợi, phía Thương xá Tax cũ", note: "Tax đã được phá dỡ, lối ra nằm cạnh khu đất cũ.", lngLat: [106.701533, 10.774450] },
+    { id: 4, place: "Tầng hầm tòa nhà Union Square Tower", note: "Góc Lê Lợi – Đồng Khởi. Có lối lên xuống cho người khuyết tật.", lngLat: [106.702592, 10.776364] },
+    { id: 5, place: "Công viên Lam Sơn, trước Nhà hát Thành phố", note: "Nối thẳng ra công viên, đối diện Nhà hát.", lngLat: [106.702636, 10.775772] }
+  ];
+
+  // Sở thích và tuyến gợi ý. "start" là số lối ra bắt đầu tuyến.
+  const INTERESTS = [
+    {
+      id: "history", label: "Lịch sử – Văn hoá",
+      theme: { route: "#ee6b6e", place: "#c8323d" }, // đỏ
+      // thứ tự đi một vòng (chỉ số trong "places"): Nhà hát → UBND TP → Bưu điện → Đức Bà → Dinh Độc Lập → Bến Thành → về ga
+      loop: [0, 5, 3, 1, 4, 2],
+      places: [
+        { n: "Nhà hát Thành phố", ll: [106.70317, 10.77661], d: "Công trình kiến trúc Pháp cuối thế kỷ 19, gần lối ra M5." },
+        { n: "Nhà thờ Đức Bà", ll: [106.69917, 10.77972], d: "Nhà thờ gạch đỏ, một trong những biểu tượng của thành phố." },
+        { n: "Chợ Bến Thành", ll: [106.69802, 10.77252], d: "Khu chợ lâu đời, gắn với đời sống buôn bán của Sài Gòn." },
+        { n: "Bưu điện Thành phố", ll: [106.69960, 10.77990], d: "Công trình kiến trúc Pháp với sảnh vòm cao, vẫn đang hoạt động." },
+        { n: "Dinh Độc Lập", ll: [106.69530, 10.77699], d: "Di tích gắn với năm 1975, công trình kiến trúc hiện đại thập niên 1960." },
+        { n: "Trụ sở UBND TP.HCM", ll: [106.70097, 10.77656], d: "Toà nhà kiểu Pháp ở đầu phố đi bộ Nguyễn Huệ, đẹp nhất khi ngắm từ bên ngoài." }
+      ]
+    },
+    {
+      id: "shopping", label: "Mua sắm – Dịch vụ",
+      theme: { route: "#7cc0e0", place: "#3b86cc" }, // xanh dương
+      // thứ tự đi một vòng (chỉ số trong "places"): Takashimaya → Union Square → Vincom Đồng Khởi → về ga
+      loop: [0, 2, 1],
+      places: [
+        { n: "Takashimaya TP.HCM", ll: [106.70080, 10.77310], d: "Trung tâm thương mại Nhật Bản trong khu Saigon Centre, đường Lê Lợi." },
+        { n: "Vincom Center Đồng Khởi", ll: [106.70189, 10.77816], d: "Trung tâm thương mại gần phố Đồng Khởi, mặt đường Lê Thánh Tôn." },
+        { n: "Union Square", ll: [106.70161, 10.77648], d: "Trung tâm thương mại và văn phòng, nối thẳng từ lối ra M4." }
+      ]
+    },
+    {
+      id: "food", label: "Ẩm thực",
+      theme: { route: "#f3cf2f", place: "#a8861c", arrow: "#8a6a00" }, // vàng
+      // thứ tự đi một vòng (chỉ số trong "places"): Nguyễn Huệ → Tôn Thất Thiệp → Tôn Thất Đạm → về ga
+      loop: [0, 1, 2],
+      places: [
+        { n: "Chung cư 42 Nguyễn Huệ", ll: [106.704008, 10.774125], d: "Dãy quán cà phê và quán ăn trong chung cư cũ, nhìn xuống phố đi bộ." },
+        { n: "Chung cư 42 Tôn Thất Thiệp", ll: [106.70235, 10.77372], d: "Chung cư cũ với nhiều quán cà phê và quán ăn nhỏ." },
+        { n: "Chung cư 42 Tôn Thất Đạm", ll: [106.70400, 10.76940], d: "Chung cư cũ gần bờ sông, có quán cà phê và quán ăn." }
+      ]
+    },
+    {
+      id: "walk", label: "Đi dạo",
+      theme: { route: "#7db35d", place: "#3f7d2a" }, // xanh lá
+      // thứ tự đi một vòng (chỉ số trong "places"): Nguyễn Huệ → Bến Bạch Đằng → Cầu đi bộ Nutifood → Công viên Tax → về ga
+      loop: [3, 0, 2, 1],
+      places: [
+        { n: "Công viên Bến Bạch Đằng", ll: [106.706744, 10.773164], d: "Công viên và lối dạo dọc bờ sông Sài Gòn." },
+        { n: "Công viên Thương xá Tax", ll: [106.70080, 10.77350], d: "Không gian công cộng trên khu đất Thương xá Tax cũ, gần ga." },
+        { n: "Cầu đi bộ Nutifood (đầu cầu phía Quận 1)", ll: [106.706928, 10.774286], d: "Đầu cầu đi bộ phía Quận 1, ngay khu bờ sông." },
+        { n: "Phố đi bộ Nguyễn Huệ", ll: [106.70291, 10.77478], d: "Trục phố đi bộ từ UBND TP.HCM ra bờ sông, nhiều quán ăn và cửa hàng lưu niệm, đông vào tối và cuối tuần." }
+      ]
+    },
+    {
+      // Gợi ý tuyến: chọn ngẫu nhiên 1 điểm ở mỗi nhóm, đi theo thứ tự "order" rồi về lại lối ra
+      id: "mix", label: "Gợi ý tuyến", mix: true,
+      order: ["history", "shopping", "food", "walk"],
+      theme: { route: "#8a74d6", place: "#5b49b8" } // tím; icon từng điểm lấy màu của nhóm
+    }
+  ];
+
+  const STYLES = { light: "streets-v2-light", dark: "streets-v2-dark" };
+
+  const $ = (id) => document.getElementById(id);
+  const mobile = () => window.matchMedia("(max-width: 760px)").matches;
+  const fmt = (ll) => ll[1].toFixed(5) + ", " + ll[0].toFixed(5);
+
+  let key = MAPTILER_KEY;
+  try { key = key || localStorage.getItem("maptiler-key") || ""; } catch (e) {}
+  let mode = "light";
+
+  // Có key: MapTiler. Không có key: OpenFreeMap (miễn phí, không cần key).
+  // Nền dự phòng: nếu OpenFreeMap không tải được (mạng chặn DNS, lỗi) thì thử lần lượt các nguồn ô ảnh khác
+  // (mỗi nguồn một tên miền khác nhau để ít nhất một nguồn tải được)
+  const FB = [
+    ["CARTO", ["https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png", "https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"], "© OpenStreetMap © CARTO"],
+    ["Esri", ["https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}"], "© Esri"],
+    ["OSM-fr", ["https://a.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png", "https://b.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png"], "© OpenStreetMap"],
+    ["OSM", ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"], "© OpenStreetMap"]
+  ];
+  let fbIndex = -1;
+  const rasterStyle = (i) => ({
+    version: 8,
+    sources: { ["bg" + i]: { type: "raster", tiles: FB[i][1], tileSize: 256, maxzoom: 19, attribution: FB[i][2] } },
+    layers: [{ id: "bg" + i, type: "raster", source: "bg" + i }]
+  });
+  const FREE_STYLE = "https://tiles.openfreemap.org/styles/positron";
+  const styleFor = () => {
+    document.body.classList.toggle("nokey", !key);
+    return key
+      ? "https://api.maptiler.com/maps/" + STYLES[mode] + "/style.json?key=" + encodeURIComponent(key)
+      : (fbIndex >= 0 ? rasterStyle(fbIndex) : FREE_STYLE);
+  };
+
+  const map = new maplibregl.Map({
+    container: "map",
+    style: styleFor(),
+    center: [106.7020, 10.7757],
+    zoom: 16.5,
+    dragRotate: false,
+    pitchWithRotate: false,
+    attributionControl: { compact: true }
+  });
+  map.touchZoomRotate.disableRotation();
+  map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-right");
+
+  const markers = {};
+  const items = {};
+  let startId = null; // lối ra đang chọn, dùng làm điểm xuất phát của tuyến
+
+  function pad() {
+    return mobile()
+      ? { top: 60, left: 40, right: 40, bottom: 40 }
+      : { top: 70, left: 80, right: 80, bottom: 70 };
+  }
+
+  function select(id, fly) {
+    startId = id;
+    EXITS.forEach((e) => {
+      items[e.id].classList.toggle("active", e.id === id);
+      markers[e.id].getElement().classList.toggle("active", e.id === id);
+    });
+    items[id].scrollIntoView({ block: "nearest" });
+    if (fly) {
+      const e = EXITS.find((x) => x.id === id);
+      map.flyTo({ center: e.lngLat, zoom: Math.max(map.getZoom(), 17.5), padding: mobile() ? { bottom: 0 } : {}, essential: false });
+    }
+    onStartChange();
+  }
+
+  EXITS.forEach((e) => {
+    const li = document.createElement("li");
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "exit";
+    b.innerHTML =
+      '<span class="num">M' + e.id + '</span>' +
+      '<span><div class="exit-title">Lối ra số ' + e.id + '</div>' +
+      '<div class="exit-note">' + e.place + '. ' + e.note + '</div>' +
+      '<div class="coord">' + fmt(e.lngLat) + '</div></span>';
+    b.addEventListener("click", () => select(e.id, true));
+    li.appendChild(b);
+    $("exitList").appendChild(li);
+    items[e.id] = b;
+
+    const el = document.createElement("button");
+    el.type = "button";
+    el.className = "pin";
+    el.textContent = "M" + e.id;
+    el.setAttribute("aria-label", "Lối ra số " + e.id + ": " + e.place);
+    el.addEventListener("click", () => select(e.id, false));
+    // draggable: false giữ cố định ghim
+    markers[e.id] = new maplibregl.Marker({ element: el, draggable: false }).setLngLat(e.lngLat).addTo(map);
+  });
+
+  function fitAll(ms) {
+    const b = new maplibregl.LngLatBounds();
+    EXITS.forEach((e) => b.extend(e.lngLat));
+    map.fitBounds(b, { padding: pad(), maxZoom: 17.2, duration: ms || 0 });
+  }
+  fitAll();
+
+  // Chuyển thẻ Lối ra / Tuyến trải nghiệm
+  function showTab(name) {
+    const isExits = name === "exits";
+    $("tabExits").setAttribute("aria-selected", String(isExits));
+    $("tabRoutes").setAttribute("aria-selected", String(!isExits));
+    $("viewExits").hidden = !isExits;
+    $("viewRoutes").hidden = isExits;
+  }
+  $("tabExits").addEventListener("click", () => showTab("exits"));
+  $("tabRoutes").addEventListener("click", () => showTab("routes"));
+
+  // ---- Tuyến đi bộ: tuyến lẻ (lối ra → một điểm) và một vòng qua mọi điểm ----
+  const WALK_M_PER_MIN = 5000 / 60; // ước tính đi bộ 5 km/h
+  const ROUTE_API = "https://routing.openstreetmap.de/routed-foot/route/v1/foot/";
+  const SVGNS = "http://www.w3.org/2000/svg";
+  let routeCoords = [];
+  let places = [];
+  let loopOrder = [];
+  let placeMarkers = [];
+  let plan = null; // null | { type: "single", dest } | { type: "loop" }
+  let placePopup = null;
+  let planToken = 0;
+  let mixActive = false;
+  let mixLast = null;
+  let mixGroups = [];
+
+  const fmtM = (m) => Math.round(m).toLocaleString("vi-VN") + " m";
+  const fmtMin = (m) => Math.max(1, Math.round(m / WALK_M_PER_MIN)) + " phút";
+
+  function haversine(a, b) {
+    const R = 6371000, rad = Math.PI / 180;
+    const dLat = (b[1] - a[1]) * rad, dLng = (b[0] - a[0]) * rad;
+    const h = Math.sin(dLat / 2) ** 2 + Math.cos(a[1] * rad) * Math.cos(b[1] * rad) * Math.sin(dLng / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(h));
+  }
+
+  // Lớp SVG phủ lên bản đồ để vẽ đường màu đỏ (canvas bản đồ bị lọc trắng đen nên không vẽ bằng layer được)
+  const routeSvg = document.createElementNS(SVGNS, "svg");
+  routeSvg.setAttribute("class", "route-svg");
+  routeSvg.setAttribute("aria-hidden", "true");
+  routeSvg.innerHTML = '<path class="route-halo"></path><path class="route-line"></path><g class="route-arrows"></g>';
+  map.getCanvasContainer().insertBefore(routeSvg, map.getCanvas().nextSibling);
+  const rHalo = routeSvg.querySelector(".route-halo");
+  const rLine = routeSvg.querySelector(".route-line");
+  const rArrows = routeSvg.querySelector(".route-arrows");
+
+  function redrawRoute() {
+    if (routeCoords.length < 2) {
+      rHalo.setAttribute("d", ""); rLine.setAttribute("d", ""); rArrows.innerHTML = "";
+      return;
+    }
+    const pts = routeCoords.map((c) => map.project(c));
+    const d = "M" + pts.map((p) => p.x.toFixed(1) + " " + p.y.toFixed(1)).join("L");
+    rHalo.setAttribute("d", d);
+    rLine.setAttribute("d", d);
+    // Mũi tên chỉ hướng đi, cách nhau khoảng 160px
+    let acc = 0, next = 80, arrows = "";
+    for (let i = 1; i < pts.length; i++) {
+      const a = pts[i - 1], b = pts[i], seg = Math.hypot(b.x - a.x, b.y - a.y);
+      if (!seg) continue;
+      while (acc + seg >= next) {
+        const t = (next - acc) / seg;
+        const x = a.x + (b.x - a.x) * t, y = a.y + (b.y - a.y) * t;
+        const ang = Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI;
+        arrows += '<path d="M-3.5 -4.5 L3.5 0 L-3.5 4.5" transform="translate(' + x.toFixed(1) + " " + y.toFixed(1) + ") rotate(" + ang.toFixed(0) + ')"></path>';
+        next += 160;
+      }
+      acc += seg;
+    }
+    rArrows.innerHTML = arrows;
+  }
+  map.on("render", redrawRoute);
+
+  function clearPlaces() {
+    planToken++;
+    placeMarkers.forEach((m) => m.remove());
+    placeMarkers = [];
+    places = [];
+    loopOrder = [];
+    plan = null;
+    mixActive = false;
+    mixLast = null;
+    if (placePopup) { placePopup.remove(); placePopup = null; }
+    routeCoords = [];
+    redrawRoute();
+  }
+
+  function openPlace(i) {
+    if (placePopup) placePopup.remove();
+    placePopup = new maplibregl.Popup({ offset: 18, closeButton: false, closeOnClick: false, maxWidth: "240px" })
+      .setLngLat(places[i].ll).setText(places[i].n).addTo(map);
+  }
+
+  function setPlan(p) {
+    plan = p;
+    computePlan();
+  }
+
+  // ---- Đường đi bộ ngắn nhất: dùng bảng khoảng cách đi bộ thật (OSRM, dữ liệu OpenStreetMap) ----
+  const TABLE_API = "https://routing.openstreetmap.de/routed-foot/table/v1/foot/";
+  const matrixCache = {};
+  // Ma trận quãng đường đi bộ (m) giữa các điểm; chỉ số 0 là điểm xuất phát (lối ra).
+  async function walkMatrix(pts) {
+    const k = pts.map((p) => p[0] + "," + p[1]).join(";");
+    if (matrixCache[k]) return matrixCache[k];
+    let res = null;
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 12000);
+      const r = await fetch(TABLE_API + k + "?annotations=distance,duration", { signal: ctrl.signal });
+      clearTimeout(timer);
+      const data = await r.json();
+      if (data.code === "Ok") {
+        let d = data.distances;
+        if (!d && data.durations) d = data.durations.map((row) => row.map((v) => (v == null ? null : v * 5000 / 3600)));
+        if (d) {
+          d = d.map((row, i) => row.map((v, j) => (v == null ? haversine(pts[i], pts[j]) * 1.4 : v)));
+          res = { d, live: true };
+        }
+      }
+    } catch (e) {}
+    if (!res) res = { d: pts.map((a) => pts.map((b) => haversine(a, b))), live: false };
+    if (res.live) matrixCache[k] = res;
+    return res;
+  }
+
+  // Thứ tự ghé các điểm (chỉ số 1..n trong ma trận) cho vòng khép kín 0 → ... → 0 ngắn nhất, thử mọi hoán vị
+  function bestTour(D, nodes) {
+    let best = null;
+    (function perm(rest, cur, len, prev, maxLeg) {
+      if (best && len >= best.len) return;
+      if (!rest.length) {
+        const back = D[prev][0], tot = len + back;
+        if (!best || tot < best.len) best = { order: cur.slice(), len: tot, maxLeg: Math.max(maxLeg, back) };
+        return;
+      }
+      for (let i = 0; i < rest.length; i++) {
+        const n = rest[i], leg = D[prev][n];
+        cur.push(n);
+        perm(rest.slice(0, i).concat(rest.slice(i + 1)), cur, len + leg, n, Math.max(maxLeg, leg));
+        cur.pop();
+      }
+    })(nodes, [], 0, 0, 0);
+    return best;
+  }
+
+  // Thứ tự đi một vòng ngắn nhất qua mọi điểm, tính theo quãng đường đi bộ thật từ lối ra đang chọn
+  async function bestLoop(from) {
+    const m = await walkMatrix([from].concat(places.map((p) => p.ll)));
+    const t = bestTour(m.d, places.map((_, k) => k + 1));
+    return { order: t.order.map((k) => k - 1), live: m.live };
+  }
+
+  function onStartChange() {
+    if (places.length) computePlan();
+    else if (mixActive) computeMix();
+  }
+
+  async function computePlan() {
+    const out = $("planOut");
+    if (!out) return;
+    const token = ++planToken;
+    const single = !!plan && plan.type === "single";
+    placeMarkers.forEach((m, i) => {
+      const el = m.getElement();
+      el.textContent = "";
+      el.classList.toggle("active", single && plan.dest === i);
+    });
+    document.querySelectorAll(".dest").forEach((d, i) => d.setAttribute("aria-pressed", String(single && plan.dest === i)));
+    document.querySelectorAll(".start-chip").forEach((c) => c.setAttribute("aria-pressed", String(+c.dataset.id === startId)));
+    $("loopBtn").setAttribute("aria-pressed", String(!!plan && plan.type === "loop"));
+    routeCoords = [];
+    redrawRoute();
+
+    if (startId == null) {
+      out.innerHTML = '<p class="hint">Chọn lối ra xuất phát (M1–M5) ở trên hoặc trên bản đồ để xem đường đi.</p>';
+      return;
+    }
+    if (!plan) {
+      out.innerHTML = '<p class="hint">Chọn một điểm đến, hoặc đi một vòng qua cả ' + places.length + ' điểm.</p>';
+      return;
+    }
+
+    const ex = EXITS.find((e) => e.id === startId);
+    let order;
+    if (single) order = [plan.dest];
+    else {
+      out.innerHTML = '<p class="hint">Đang tìm thứ tự đi bộ ngắn nhất…</p>';
+      order = (await bestLoop(ex.lngLat)).order;
+      if (token !== planToken) return;
+    }
+    const pts = [ex.lngLat].concat(order.map((i) => places[i].ll));
+    const names = ["Lối ra M" + startId].concat(order.map((i) => places[i].n));
+    if (!single) {
+      pts.push(ex.lngLat);
+      names.push("Lối ra M" + startId);
+      order.forEach((i, k) => { placeMarkers[i].getElement().textContent = String(k + 1); });
+    }
+    const bounds = new maplibregl.LngLatBounds();
+    pts.forEach((p) => bounds.extend(p));
+    map.fitBounds(bounds, { padding: pad(), maxZoom: 17, duration: 600 });
+    out.innerHTML = '<p class="hint">Đang tìm đường đi bộ…</p>';
+
+    // Lấy đường đi bộ thật; nếu không được thì vẽ đường chim bay
+    let legs = null, coords = null, live = false;
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 12000);
+      const url = ROUTE_API + pts.map((p) => p[0] + "," + p[1]).join(";") + "?overview=full&geometries=geojson&steps=false";
+      const res = await fetch(url, { signal: ctrl.signal });
+      clearTimeout(timer);
+      const data = await res.json();
+      if (data.code === "Ok" && data.routes && data.routes[0]) {
+        legs = data.routes[0].legs.map((l) => l.distance);
+        coords = data.routes[0].geometry.coordinates;
+        live = true;
+      }
+    } catch (e) {}
+    if (token !== planToken) return;
+    if (!live) {
+      legs = [];
+      for (let i = 0; i < pts.length - 1; i++) legs.push(haversine(pts[i], pts[i + 1]));
+      coords = pts;
+    }
+    routeCoords = coords;
+    redrawRoute();
+
+    const total = legs.reduce((a, b) => a + b, 0);
+    const title = single
+      ? names[0] + " → " + names[1]
+      : "Một vòng qua " + order.length + " điểm, xuất phát và về lại " + names[0];
+    out.innerHTML =
+      '<div class="sum-big">' + fmtM(total) + " · " + fmtMin(total) + "</div>" +
+      '<div class="sum-sub">' + title + " · đi bộ</div>" +
+      '<ol class="legs">' +
+        legs.map((m, i) => {
+          const from = !single && i > 0 && i <= order.length ? i + ". " + names[i] : names[i];
+          const to = !single && i + 1 <= order.length ? (i + 1) + ". " + names[i + 1] : names[i + 1];
+          return "<li><span>" + from + " → " + to + '</span><span class="lg-d">' + fmtM(m) + " · " + fmtMin(m) + "</span></li>";
+        }).join("") +
+      "</ol>" +
+      '<p class="src">' + (live
+        ? "Đường đi bộ lấy từ dữ liệu OpenStreetMap."
+        : "Chưa tải được dữ liệu đường đi bộ nên đang vẽ đường chim bay. Quãng đường thực tế sẽ dài hơn.") + "</p>";
+  }
+
+  function renderPlanner(interest, box) {
+    places = interest.places;
+    loopOrder = interest.loop;
+    plan = null;
+    const wrap = document.createElement("div");
+    wrap.className = "planner";
+    wrap.innerHTML =
+      "<h3>1. Xuất phát từ lối ra</h3><div class=\"starts\" id=\"starts\"></div>" +
+      "<h3>2. Chọn điểm đến</h3><div class=\"dests\" id=\"dests\"></div>" +
+      '<button type="button" class="btn loop" id="loopBtn" aria-pressed="false">Đi một vòng qua cả ' + places.length + " điểm</button>" +
+      '<div class="plan" id="planOut"></div>';
+    box.appendChild(wrap);
+
+    EXITS.forEach((e) => {
+      const c = document.createElement("button");
+      c.type = "button";
+      c.className = "start-chip";
+      c.dataset.id = e.id;
+      c.textContent = "M" + e.id;
+      c.setAttribute("aria-label", "Xuất phát từ lối ra số " + e.id);
+      c.addEventListener("click", () => select(e.id, false));
+      $("starts").appendChild(c);
+    });
+
+    places.forEach((p, i) => {
+      const d = document.createElement("button");
+      d.type = "button";
+      d.className = "dest";
+      d.innerHTML = '<span class="dest-dot"></span><span><div class="stop-name">' + p.n + '</div><div class="stop-desc">' + p.d + "</div></span>";
+      d.addEventListener("click", () => { setPlan({ type: "single", dest: i }); openPlace(i); });
+      $("dests").appendChild(d);
+
+      const el = document.createElement("button");
+      el.type = "button";
+      el.className = "stop-pin";
+      el.title = p.n;
+      el.setAttribute("aria-label", "Điểm tham quan: " + p.n);
+      el.addEventListener("click", () => { setPlan({ type: "single", dest: i }); openPlace(i); });
+      placeMarkers.push(new maplibregl.Marker({ element: el }).setLngLat(p.ll).addTo(map));
+    });
+    $("loopBtn").addEventListener("click", () => {
+      if (placePopup) { placePopup.remove(); placePopup = null; }
+      setPlan({ type: "loop" });
+    });
+
+    const bounds = new maplibregl.LngLatBounds();
+    places.forEach((p) => bounds.extend(p.ll));
+    EXITS.forEach((e) => bounds.extend(e.lngLat));
+    map.fitBounds(bounds, { padding: pad(), maxZoom: 16, duration: 600 });
+    computePlan();
+  }
+
+  // ---- Gợi ý tuyến: mỗi nhóm một điểm, đi theo thứ tự rồi về lại lối ra ----
+  const MIX_MAX_LEG = 1500; // m, chặng đi bộ dài nhất cho phép
+  const MIX_SLACK = 1.3;    // vòng không dài hơn 1,3 lần vòng ngắn nhất
+
+  // Mỗi nhóm lấy một điểm; với mỗi tổ hợp, sắp thứ tự đi ngắn nhất theo đường đi bộ thật, rồi chọn ngẫu nhiên
+  // trong các tổ hợp có vòng gần ngắn nhất, bỏ tổ hợp có chặng quá xa.
+  async function suggestMix(from, avoidKey) {
+    const cand = [];
+    mixGroups.forEach((g, gi) => g.places.forEach((p, i) => cand.push({ g, p, i, gi })));
+    const m = await walkMatrix([from].concat(cand.map((c) => c.p.ll)));
+    const combos = [];
+    (function rec(gi, cur) {
+      if (gi === mixGroups.length) { combos.push(cur.slice()); return; }
+      cand.forEach((c, k) => { if (c.gi === gi) { cur.push(k); rec(gi + 1, cur); cur.pop(); } });
+    })(0, []);
+    const info = combos.map((ks) => {
+      const t = bestTour(m.d, ks.map((k) => k + 1));
+      return { c: t.order.map((n) => cand[n - 1]), len: t.len, maxLeg: t.maxLeg, key: ks.map((k) => cand[k].g.id + cand[k].i).join("|") };
+    });
+    const best = Math.min.apply(null, info.map((x) => x.len));
+    let ok = info.filter((x) => x.len <= best * MIX_SLACK && x.maxLeg <= MIX_MAX_LEG);
+    if (!ok.length) ok = info.filter((x) => x.len <= best * MIX_SLACK);
+    const fresh = ok.filter((x) => x.key !== avoidKey);
+    const list = fresh.length ? fresh : ok;
+    return list[Math.floor(Math.random() * list.length)];
+  }
+
+  // Lấy đường đi bộ thật qua các điểm; nếu không được thì dùng đường chim bay
+  async function fetchWalk(pts) {
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 12000);
+      const url = ROUTE_API + pts.map((p) => p[0] + "," + p[1]).join(";") + "?overview=full&geometries=geojson&steps=false";
+      const res = await fetch(url, { signal: ctrl.signal });
+      clearTimeout(timer);
+      const data = await res.json();
+      if (data.code === "Ok" && data.routes && data.routes[0]) {
+        return { legs: data.routes[0].legs.map((l) => l.distance), coords: data.routes[0].geometry.coordinates, live: true };
+      }
+    } catch (e) {}
+    const legs = [];
+    for (let i = 0; i < pts.length - 1; i++) legs.push(haversine(pts[i], pts[i + 1]));
+    return { legs, coords: pts, live: false };
+  }
+
+  async function computeMix() {
+    const out = $("mixOut");
+    if (!out) return;
+    const token = ++planToken;
+    document.querySelectorAll(".start-chip").forEach((c) => c.setAttribute("aria-pressed", String(+c.dataset.id === startId)));
+    placeMarkers.forEach((m) => m.remove());
+    placeMarkers = [];
+    if (placePopup) { placePopup.remove(); placePopup = null; }
+    routeCoords = [];
+    redrawRoute();
+    if (startId == null) {
+      out.innerHTML = '<p class="hint">Chọn lối ra xuất phát (M1–M5) ở trên hoặc trên bản đồ để nhận gợi ý.</p>';
+      return;
+    }
+
+    const ex = EXITS.find((e) => e.id === startId);
+    out.innerHTML = '<p class="hint">Đang tính tuyến đi bộ ngắn nhất…</p>';
+    const sel = await suggestMix(ex.lngLat, mixLast);
+    if (token !== planToken) return;
+    mixLast = sel.key;
+    $("mixBtn").textContent = "Gợi ý tuyến khác";
+    const stops = sel.c;
+    stops.forEach((x, k) => {
+      const el = document.createElement("button");
+      el.type = "button";
+      el.className = "stop-pin";
+      el.textContent = String(k + 1);
+      el.style.background = x.g.theme.place;
+      el.title = x.p.n;
+      el.setAttribute("aria-label", "Điểm " + (k + 1) + ": " + x.p.n + " (" + x.g.label + ")");
+      el.addEventListener("click", () => {
+        if (placePopup) placePopup.remove();
+        placePopup = new maplibregl.Popup({ offset: 18, closeButton: false, closeOnClick: false, maxWidth: "240px" })
+          .setLngLat(x.p.ll).setText((k + 1) + ". " + x.p.n).addTo(map);
+      });
+      placeMarkers.push(new maplibregl.Marker({ element: el }).setLngLat(x.p.ll).addTo(map));
+    });
+
+    const pts = [ex.lngLat].concat(stops.map((x) => x.p.ll), [ex.lngLat]);
+    const names = ["Lối ra M" + startId].concat(stops.map((x, k) => (k + 1) + ". " + x.p.n), ["Lối ra M" + startId]);
+    const bounds = new maplibregl.LngLatBounds();
+    pts.forEach((p) => bounds.extend(p));
+    map.fitBounds(bounds, { padding: pad(), maxZoom: 17, duration: 600 });
+    out.innerHTML = '<p class="hint">Đang tìm đường đi bộ…</p>';
+
+    const r = await fetchWalk(pts);
+    if (token !== planToken) return;
+    routeCoords = r.coords;
+    redrawRoute();
+
+    const total = r.legs.reduce((a, b) => a + b, 0);
+    out.innerHTML =
+      '<div class="sum-big">' + fmtM(total) + " · " + fmtMin(total) + "</div>" +
+      '<div class="sum-sub">Một vòng khép kín qua 4 điểm, xuất phát và về lại ' + names[0] + " · đi bộ</div>" +
+      '<ol class="mixstops">' +
+        stops.map((x, k) => '<li><i style="background:' + x.g.theme.place + '"></i><span><div class="stop-name">' + (k + 1) + ". " + x.p.n + '</div><div class="stop-desc">' + x.g.label + "</div></span></li>").join("") +
+      "</ol>" +
+      '<ol class="legs">' +
+        r.legs.map((m, i) => "<li><span>" + names[i] + " → " + names[i + 1] + '</span><span class="lg-d">' + fmtM(m) + " · " + fmtMin(m) + "</span></li>").join("") +
+      "</ol>" +
+      '<p class="src">' + (r.live
+        ? "Đường đi bộ lấy từ dữ liệu OpenStreetMap."
+        : "Chưa tải được dữ liệu đường đi bộ nên đang vẽ đường chim bay. Quãng đường thực tế sẽ dài hơn.") + "</p>";
+  }
+
+  function renderMix(interest, box) {
+    mixActive = true;
+    mixLast = null;
+    mixGroups = interest.order.map((id) => INTERESTS.find((x) => x.id === id)).filter((g) => g && g.places);
+    const wrap = document.createElement("div");
+    wrap.className = "planner";
+    wrap.innerHTML =
+      '<h3>1. Xuất phát từ lối ra</h3><div class="starts" id="starts"></div>' +
+      '<h3>2. Nhận gợi ý</h3>' +
+      '<p class="mixnote">Mỗi lần chọn ngẫu nhiên một điểm ở mỗi nhóm (' + mixGroups.map((g) => g.label).join(", ") + "), rồi sắp thứ tự theo quãng đường đi bộ ngắn nhất và về lại lối ra. Các điểm quá xa sẽ bị loại.</p>" +
+      '<button type="button" class="btn loop" id="mixBtn">Gợi ý tuyến cho tôi</button>' +
+      '<div class="plan" id="mixOut"></div>';
+    box.appendChild(wrap);
+    EXITS.forEach((e) => {
+      const c = document.createElement("button");
+      c.type = "button";
+      c.className = "start-chip";
+      c.dataset.id = e.id;
+      c.textContent = "M" + e.id;
+      c.setAttribute("aria-label", "Xuất phát từ lối ra số " + e.id);
+      c.addEventListener("click", () => select(e.id, false));
+      $("starts").appendChild(c);
+    });
+    $("mixBtn").addEventListener("click", () => computeMix());
+    fitAll(600);
+    computeMix();
+  }
+
+  // Màu đường đi và icon địa điểm theo từng sở thích (mặc định đỏ)
+  function applyTheme(interest) {
+    const t = (interest && interest.theme) || { route: "#ee6b6e", place: "#c8323d" };
+    document.documentElement.style.setProperty("--route", t.route);
+    document.documentElement.style.setProperty("--place", t.place);
+    document.documentElement.style.setProperty("--arrow", t.arrow || "#ffffff");
+  }
+
+  // Sở thích và tuyến gợi ý
+  function renderRoutes(interest) {
+    const box = $("routeList");
+    box.innerHTML = "";
+    clearPlaces();
+    applyTheme(interest);
+    if (!interest) {
+      box.innerHTML = '<p class="empty">Chọn một sở thích ở trên để xem tuyến gợi ý.</p>';
+      fitAll(600);
+      return;
+    }
+    if (interest.places) { renderPlanner(interest, box); return; }
+    if (interest.mix) { renderMix(interest, box); return; }
+    interest.routes.forEach((r, idx) => {
+      const art = document.createElement("article");
+      art.className = "route";
+      art.innerHTML =
+        '<h3>' + r.title + '</h3>' +
+        '<p class="intro">' + r.intro + '</p>' +
+        '<div class="meta"><span>Bắt đầu: <b>M' + r.start + '</b></span><span>' + r.dist + '</span><span>' + r.time + '</span></div>' +
+        '<ol class="stops">' +
+          r.stops.map((s) => '<li><div class="stop-name">' + s.n + '</div><div class="stop-desc">' + s.d + '</div></li>').join("") +
+        '</ol>';
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "btn";
+      btn.textContent = "Xem lối ra M" + r.start + " trên bản đồ";
+      btn.addEventListener("click", () => select(r.start, true));
+      art.appendChild(btn);
+      box.appendChild(art);
+      if (idx === 0) select(r.start, true);
+    });
+  }
+
+  let chosen = null;
+  INTERESTS.forEach((it) => {
+    const c = document.createElement("button");
+    c.type = "button";
+    c.className = "chip" + (it.mix ? " wide" : "");
+    c.textContent = it.label;
+    c.setAttribute("aria-pressed", "false");
+    c.addEventListener("click", () => {
+      chosen = chosen === it.id ? null : it.id;
+      document.querySelectorAll(".chip").forEach((x, i) => x.setAttribute("aria-pressed", String(INTERESTS[i].id === chosen)));
+      renderRoutes(INTERESTS.find((x) => x.id === chosen));
+    });
+    $("chips").appendChild(c);
+  });
+  renderRoutes(null);
+
+  // Kiểu bản đồ sáng / tối (cả hai đều được chuyển về trắng đen bằng bộ lọc CSS)
+  function setMode(m) {
+    mode = m;
+    document.body.classList.toggle("dark", m === "dark");
+    $("lightBtn").setAttribute("aria-pressed", String(m === "light"));
+    $("darkBtn").setAttribute("aria-pressed", String(m === "dark"));
+    map.setStyle(styleFor());
+  }
+  $("lightBtn").addEventListener("click", () => setMode("light"));
+  $("darkBtn").addEventListener("click", () => setMode("dark"));
+
+  // Nhập key MapTiler
+  $("keybox").hidden = true;
+  $("keyBtn").addEventListener("click", () => { $("keybox").hidden = !$("keybox").hidden; });
+  $("keyForm").addEventListener("submit", (ev) => {
+    ev.preventDefault();
+    key = $("keyInput").value.trim();
+    if (!key) return;
+    try { localStorage.setItem("maptiler-key", key); } catch (e) {}
+    $("keybox").hidden = true;
+    map.setStyle(styleFor());
+  });
+
+  map.on("error", (ev) => {
+    const s = ev && ev.error && ev.error.status;
+    if (s === 401 || s === 403) {
+      try { localStorage.removeItem("maptiler-key"); } catch (e) {}
+      key = "";
+      $("keybox").hidden = false;
+      map.setStyle(styleFor());
+    }
+  });
+
+  // Khi bản đồ nằm trong tab/khung đang ẩn lúc tải (display:none) thì kích thước = 0 và nền trắng tinh:
+  // theo dõi kích thước khung để vẽ lại khi nó hiện ra.
+  if (typeof ResizeObserver !== "undefined") {
+    new ResizeObserver(() => map.resize()).observe($("map"));
+  }
+  map.once("load", () => { map.resize(); });
+  setTimeout(() => map.resize(), 300);
+  setTimeout(() => map.resize(), 1500);
+
+  // Chuyển sang nền dự phòng kế tiếp khi nền hiện tại không tải được
+  let tileErrors = 0, loaded = false;
+  map.once("load", () => { loaded = true; });
+  function nextFallback() {
+    if (key || fbIndex >= FB.length - 1) return;
+    fbIndex++;
+    tileErrors = 0;
+    map.setStyle(styleFor());
+  }
+  map.on("error", (ev) => {
+    if (key) return;
+    const s = ev && ev.error && ev.error.status;
+    if (s === 401 || s === 403) return;
+    if (fbIndex < 0) {
+      if (!ev.sourceId) nextFallback();             // style OpenFreeMap không tải được
+      else if (++tileErrors >= 4) nextFallback();   // nhiều ô nền lỗi liên tiếp
+    } else if (ev.sourceId === "bg" + fbIndex && ++tileErrors >= 4) {
+      nextFallback();                               // nguồn ảnh này cũng lỗi: thử nguồn khác
+    }
+  });
+  setTimeout(() => { if (!loaded && fbIndex < 0) nextFallback(); }, 8000);
+
+  window.addEventListener("resize", () => map.resize());
+<\/script>
+</body>
+</html>
+</script>
+<script>
+(function(){
+var TZ='Asia/Saigon';
+function nowVN(){var p=new Intl.DateTimeFormat('en-US',{timeZone:TZ,hour:'numeric',minute:'numeric',hour12:false,weekday:'short',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());var o={};p.forEach(function(x){o[x.type]=x.value});var wd={Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6}[o.weekday];var h=parseInt(o.hour,10)%24,m=parseInt(o.minute,10);return {h:h,m:m,min:h*60+m,dow:wd,date:o.year+'-'+o.month+'-'+o.day};}
+function pad(n){return (n<10?'0':'')+n}
+function clock(min){return pad(Math.floor(min/60)%24)+':'+pad(min%60)}
+function fmtDate(d){var p=d.split('-');return p[2]+'/'+p[1]+'/'+p[0]}
+function esc(x){return String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function $(s){return document.querySelector(s)}
+var DOW=['Chủ nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
+
+/* ===== DỮ LIỆU NGUYÊN VĂN TỪ FILE index ===== */
+var EXITS = [
+    { id: 1, place: "Đường Lê Lợi, phía khách sạn Rex", note: "Cạnh Rex Arcade (4–6 Lê Lợi).", lngLat: [106.701719, 10.775458] },
+    { id: 2, place: "Đường Pasteur, gần quán kem Bạch Đằng", note: "Kết nối nhiều tuyến xe buýt.", lngLat: [106.701072, 10.774817] },
+    { id: 3, place: "Đường Lê Lợi, phía Thương xá Tax cũ", note: "Tax đã được phá dỡ, lối ra nằm cạnh khu đất cũ.", lngLat: [106.701533, 10.774450] },
+    { id: 4, place: "Tầng hầm tòa nhà Union Square Tower", note: "Góc Lê Lợi – Đồng Khởi. Có lối lên xuống cho người khuyết tật.", lngLat: [106.702592, 10.776364] },
+    { id: 5, place: "Công viên Lam Sơn, trước Nhà hát Thành phố", note: "Nối thẳng ra công viên, đối diện Nhà hát.", lngLat: [106.702636, 10.775772] }
+  ];
+
+  // Sở thích và tuyến gợi ý. "start" là số lối ra bắt đầu tuyến.
+  var INTERESTS = [
+    {
+      id: "history", label: "Lịch sử – Văn hoá",
+      theme: { route: "#ee6b6e", place: "#c8323d" }, // đỏ
+      // thứ tự đi một vòng (chỉ số trong "places"): Nhà hát → UBND TP → Bưu điện → Đức Bà → Dinh Độc Lập → Bến Thành → về ga
+      loop: [0, 5, 3, 1, 4, 2],
+      places: [
+        { n: "Nhà hát Thành phố", ll: [106.70317, 10.77661], d: "Công trình kiến trúc Pháp cuối thế kỷ 19, gần lối ra M5." },
+        { n: "Nhà thờ Đức Bà", ll: [106.69917, 10.77972], d: "Nhà thờ gạch đỏ, một trong những biểu tượng của thành phố." },
+        { n: "Chợ Bến Thành", ll: [106.69802, 10.77252], d: "Khu chợ lâu đời, gắn với đời sống buôn bán của Sài Gòn." },
+        { n: "Bưu điện Thành phố", ll: [106.69960, 10.77990], d: "Công trình kiến trúc Pháp với sảnh vòm cao, vẫn đang hoạt động." },
+        { n: "Dinh Độc Lập", ll: [106.69530, 10.77699], d: "Di tích gắn với năm 1975, công trình kiến trúc hiện đại thập niên 1960." },
+        { n: "Trụ sở UBND TP.HCM", ll: [106.70097, 10.77656], d: "Toà nhà kiểu Pháp ở đầu phố đi bộ Nguyễn Huệ, đẹp nhất khi ngắm từ bên ngoài." }
+      ]
+    },
+    {
+      id: "shopping", label: "Mua sắm – Dịch vụ",
+      theme: { route: "#7cc0e0", place: "#3b86cc" }, // xanh dương
+      // thứ tự đi một vòng (chỉ số trong "places"): Takashimaya → Union Square → Vincom Đồng Khởi → về ga
+      loop: [0, 2, 1],
+      places: [
+        { n: "Takashimaya TP.HCM", ll: [106.70080, 10.77310], d: "Trung tâm thương mại Nhật Bản trong khu Saigon Centre, đường Lê Lợi." },
+        { n: "Vincom Center Đồng Khởi", ll: [106.70189, 10.77816], d: "Trung tâm thương mại gần phố Đồng Khởi, mặt đường Lê Thánh Tôn." },
+        { n: "Union Square", ll: [106.70161, 10.77648], d: "Trung tâm thương mại và văn phòng, nối thẳng từ lối ra M4." }
+      ]
+    },
+    {
+      id: "food", label: "Ẩm thực",
+      theme: { route: "#f3cf2f", place: "#a8861c", arrow: "#8a6a00" }, // vàng
+      // thứ tự đi một vòng (chỉ số trong "places"): Nguyễn Huệ → Tôn Thất Thiệp → Tôn Thất Đạm → về ga
+      loop: [0, 1, 2],
+      places: [
+        { n: "Chung cư 42 Nguyễn Huệ", ll: [106.704008, 10.774125], d: "Dãy quán cà phê và quán ăn trong chung cư cũ, nhìn xuống phố đi bộ." },
+        { n: "Chung cư 42 Tôn Thất Thiệp", ll: [106.70235, 10.77372], d: "Chung cư cũ với nhiều quán cà phê và quán ăn nhỏ." },
+        { n: "Chung cư 42 Tôn Thất Đạm", ll: [106.70400, 10.76940], d: "Chung cư cũ gần bờ sông, có quán cà phê và quán ăn." }
+      ]
+    },
+    {
+      id: "walk", label: "Đi dạo",
+      theme: { route: "#7db35d", place: "#3f7d2a" }, // xanh lá
+      // thứ tự đi một vòng (chỉ số trong "places"): Nguyễn Huệ → Bến Bạch Đằng → Cầu đi bộ Nutifood → Công viên Tax → về ga
+      loop: [3, 0, 2, 1],
+      places: [
+        { n: "Công viên Bến Bạch Đằng", ll: [106.706744, 10.773164], d: "Công viên và lối dạo dọc bờ sông Sài Gòn." },
+        { n: "Công viên Thương xá Tax", ll: [106.70080, 10.77350], d: "Không gian công cộng trên khu đất Thương xá Tax cũ, gần ga." },
+        { n: "Cầu đi bộ Nutifood (đầu cầu phía Quận 1)", ll: [106.706928, 10.774286], d: "Đầu cầu đi bộ phía Quận 1, ngay khu bờ sông." },
+        { n: "Phố đi bộ Nguyễn Huệ", ll: [106.70291, 10.77478], d: "Trục phố đi bộ từ UBND TP.HCM ra bờ sông, nhiều quán ăn và cửa hàng lưu niệm, đông vào tối và cuối tuần." }
+      ]
+    },
+    {
+      // Gợi ý tuyến: chọn ngẫu nhiên 1 điểm ở mỗi nhóm, đi theo thứ tự "order" rồi về lại lối ra
+      id: "mix", label: "Gợi ý tuyến", mix: true,
+      order: ["history", "shopping", "food", "walk"],
+      theme: { route: "#8a74d6", place: "#5b49b8" } // tím; icon từng điểm lấy màu của nhóm
+    }
+  ];
+var OFFERS=[
+    {name:'Vincom Center Đồng Khởi',img:'vincom',title:'Beauty Box giảm đến 40%',desc:'Giảm đến 40% sản phẩm chọn lọc, gồm d’Alba, 2AN và nhiều thương hiệu khác, kèm combo và quà tặng.',from:'2026-10-01',to:'2026-11-04',url:'https://vincom.com.vn/vincom-center-dong-khoi/uu-dai'},
+    {name:'Takashimaya',img:'mall',title:'A Taste of Great Deals: tặng voucher ẩm thực',desc:'Mua từ 1.000.000 đ tại tầng hầm B2 và TWG Tea Salon (tầng 2) nhận voucher 100.000 đ cho lần mua sau, tối đa 10 voucher mỗi khách, 500 voucher, hết là ngừng. Hóa đơn cùng ngày được gộp.',from:'2026-11-06',to:'2026-11-08',url:'https://takashimaya-vn.com/en/a-taste-of-great-deals/'},
+    {name:'Union Square',img:'union',title:'Her Bazaar: giảm đến 50%',desc:'Hơn 20 thương hiệu thời trang, làm đẹp, phụ kiện và lifestyle tại khu LL2, 171 Đồng Khởi. Ưu đãi đến 50% (chưa nêu rõ điều kiện áp dụng).',from:'2026-10-15',to:'2026-11-12',url:'https://unionsquare.vn/her-bazaar-a-new-shopping-destination-at-union-square/'},
+    {name:'Nhà hát Thành phố',img:'opera',title:'AO Show',desc:'Xiếc tre kết hợp nhạc sống, diễn 3–5 đêm mỗi tuần. Mùa diễn từ 01/07 đến 27/12/2026. Vé khoảng 700.000–1.600.000 đ.',from:'2026-07-01',to:'2026-12-27',url:'https://localvietnam.com/ho-chi-minh-city/ao-show-in-saigon/'}
+  ];
+  
+function dayDiff(a,b){return Math.round((Date.parse(b+'T00:00:00Z')-Date.parse(a+'T00:00:00Z'))/86400000)}
+var STEPS=[["Biết giờ chạy", "Thứ Hai đến thứ Sáu tàu chạy 05:00 – 22:00, thứ Bảy, Chủ nhật và ngày lễ 05:00 – 23:00. Một số nguồn ghi giờ đóng cửa khác, hãy xem thông báo tại ga. Giãn cách giờ cao điểm 6–8 phút, giờ thường 10 phút, giờ thấp điểm 12 phút (các nguồn công bố khoảng 5–15 phút tùy giai đoạn)."], ["Đến ga bằng xe buýt hoặc xe cá nhân", "Các tuyến buýt điện nối ga metro chạy 05:00 – 22:00, giá khoảng 3.000–6.000 đ mỗi lượt. Quanh ga Nhà hát có tuyến 155, DL01 và DL02. Từ 01/07/2026 một số tuyến nội tỉnh được miễn vé theo hai giai đoạn, hãy kiểm tra trước khi đi. Nếu đi xe cá nhân, chọn nơi gửi xe trước rồi đi bộ tới ga (dữ liệu bãi đỗ quanh ga chưa được nối vào trang này)."], ["Mua vé và lên tàu", "Tầng 1 của ga có sảnh đợi, máy bán vé và cổng thu phí tự động. Giá lượt tính theo quãng đường, từ 7.000 đ, thanh toán không tiền mặt rẻ hơn 1.000 đ. Ngoài ra có vé ngày, vé 3 ngày và vé tháng. Xem bảng giá và bộ tính chặng đi ở mục Vé và giá."]];
+var ATTRS=[["Đi bộ", "Ra thẳng phố đi bộ Nguyễn Huệ", "Từ lối ra phía Lê Lợi, bạn chỉ mất vài phút để đặt chân lên phố đi bộ, cách ga khoảng 300 m. Hai bên là quán ăn và cửa hàng lưu niệm. Khu này đông nhất vào buổi tối và cuối tuần.", "street"], ["Văn hóa", "Nhà hát Thành phố ngay trước lối ra", "Công trình hơn 100 tuổi nằm đối diện Công viên Lam Sơn phía trên ga, cách ga khoảng 260 m. Buổi tối có AO Show, 60 phút xiếc tre và nhạc sống ngay trong nhà hát.", "opera2"], ["Mua sắm", "Trung tâm thương mại sát lối ra", "Một lối ra nối thẳng xuống hầm Union Square, đi mưa không ướt. Saigon Centre – Takashimaya cách ga khoảng 140 m. Vincom Center Đồng Khởi cách vài phút đi bộ.", "mall"], ["", "Nhà thờ Đức Bà, Bưu điện", "Cách ga khoảng 550 m", "church"]];
+var FC={date:'2026-11-02',updated:'17:40',minN:25,maxN:32,minTxt:'24–26',maxTxt:'31–33',wind:'Đông Bắc đến Đông, cấp 2–3',rainFrom:780,rainTo:1320,noRain:false,tH:null,live:false,
+    sum:'Có mây, mưa rào và dông vài nơi; chiều và tối mưa rào, dông rải rác.',
+    warn:'Khi có dông có thể xảy ra lốc, sét, mưa đá và gió giật mạnh.',
+    srcs:[['HTV','https://htv.vn/du-bao-thoi-tiet-ngay-2-11-2026-tp-ho-chi-minh-co-may-co-mua-rao-va-dong-vai-noi-22226110119504811.htm'],['Thương Trường','https://thuongtruong.com.vn/news/thoi-tiet-hom-nay-211-bac-bo-co-mua-rao-nam-bo-chieu-toi-mua-dong-171475.html']]};
+  var WXURL='https://api.open-meteo.com/v1/forecast?latitude=10.7769&longitude=106.7009&hourly=temperature_2m,precipitation,precipitation_probability,weather_code,wind_speed_10m,wind_direction_10m&daily=temperature_2m_max,temperature_2m_min&timezone=Asia%2FBangkok&forecast_days=1';
+  
+var WXBUSY=false,WXLAST=0;
+function compass(d){return ['Bắc','Đông Bắc','Đông','Đông Nam','Nam','Tây Nam','Tây','Tây Bắc'][Math.round(((d%360)+360)%360/45)%8]}
+function parseWX(j){
+ var H=j.hourly,D=j.daily;
+ if(!H||!H.time||H.time.length<24||!D||!D.time)return null;
+ var date=D.time[0],wet=[],thunder=false,wmax=0,wdir=[];
+ var tH=H.temperature_2m.slice(0,24).map(function(x){return Math.round(x)});
+ for(var h=0;h<24;h++){
+  var pr=H.precipitation[h]||0,pb=H.precipitation_probability?H.precipitation_probability[h]:0,c=H.weather_code[h];
+  var isWet=pr>=0.3||(c>=80&&pb>=40);
+  if(c>=95)isWet=true;
+  if(isWet)wet.push(h);
+  if(c>=95)thunder=true;
+  if(h>=6&&h<=21){wmax=Math.max(wmax,H.wind_speed_10m[h]||0);wdir.push(H.wind_direction_10m[h]||0)}
+ }
+ var mn=Math.round(D.temperature_2m_min[0]),mx=Math.round(D.temperature_2m_max[0]);
+ var ax=0,ay=0;wdir.forEach(function(d){ax+=Math.cos(d*Math.PI/180);ay+=Math.sin(d*Math.PI/180)});
+ var dir=compass((Math.atan2(ay,ax)*180/Math.PI+360)%360);
+ var nw=nowVN();
+ return {date:date,updated:clock(nw.min),minN:mn,maxN:mx,minTxt:String(mn),maxTxt:String(mx),
+  wind:dir+', khoảng '+Math.round(wmax)+' km/h',
+  noRain:!wet.length,rainFrom:wet.length?wet[0]*60:0,rainTo:wet.length?(wet[wet.length-1]+1)*60:0,tH:tH,live:true,
+  sum:'',warn:thunder?'Có khả năng dông, có thể kèm sét và gió giật mạnh.':'',
+  srcs:[['Open-Meteo','https://open-meteo.com/']]};
+}
+function refreshWX(force){
+ if(WXBUSY)return;
+ if(!force&&Date.now()-WXLAST<20*60*1000)return;
+ WXBUSY=true;WXLAST=Date.now();
+ fetch(WXURL).then(function(r){if(!r.ok)throw new Error(r.status);return r.json()}).then(function(j){
+  var f=parseWX(j);if(f){FC=f;tick()}
+ }).catch(function(){WXLAST=Date.now()-15*60*1000}).then(function(){WXBUSY=false});
+}
+function fcValid(n){return n.date===FC.date}
+function tempAt(min){
+ if(FC.tH){var h=Math.min(23,Math.floor(min/60)),h2=Math.min(23,h+1),f=(min-h*60)/60;return Math.round(FC.tH[h]+(FC.tH[h2]-FC.tH[h])*f)}
+ var hh=min/60,ff=0.5+0.5*Math.cos(Math.PI*(hh-15)/12);return Math.round(FC.minN+(FC.maxN-FC.minN)*ff)}
+function slotAt(min){
+ if(FC.noRain)return {rain:false,label:'Trời ráo, ít khả năng mưa'};
+ if(min>=FC.rainFrom&&min<FC.rainTo)return {rain:true,label:'Mưa rào và dông rải rác'};
+ if(min>=FC.rainFrom-60&&min<FC.rainFrom)return {rain:false,label:'Có mây, mưa có thể bắt đầu'};
+ if(min<FC.rainFrom-60)return {rain:false,label:'Có mây, mưa lẻ tẻ vài nơi'};
+ return {rain:false,label:'Có mây, nhiệt độ giảm dần'};
+}
+function adviceFor(min,valid){
+ if(!valid)return 'Chưa có dự báo cho hôm nay. Hãy mang theo ô nếu đi vào chiều tối.';
+ var s=slotAt(min);
+ if(s.rain)return 'Đang trong khung giờ có dông. Ưu tiên các điểm trong nhà, đi lối ra nối Union Square, mang theo ô và tránh đứng dưới cây lớn.';
+ if(min<FC.rainFrom)return 'Còn ráo đến khoảng '+clock(FC.rainFrom)+'. Đi phố đi bộ và các điểm ngoài trời trước giờ đó, chiều vào trung tâm thương mại hoặc nhà hát.';
+ return 'Mưa dông dự báo đã qua khung giờ chính. Ra ngoài vẫn nên mang ô, vì dông có thể đến bất chợt.';
+}
+function closeMin(dow){return (dow===0||dow===6)?1380:1320}
+function hw(t){
+ if((t>=360&&t<480)||(t>=660&&t<720)||(t>=930&&t<1080))return 7;
+ if(t>=1080)return 12;
+ return 10;
+}
+function nextDep(nowMin,dow,offset){
+ var t=300+offset,end=closeMin(dow);
+ while(t<=end){ if(t>=nowMin)return t; t+=hw(t); }
+ return null;
+}
+/* ===== ẢNH: bảng PQ và cách tìm ảnh lấy nguyên từ file index (Wikimedia Commons) ===== */
+var PQ={
+    opera:  {q:'Saigon Opera House',i:0,
+             file:'Nhà hát Lớn, Thành phố Hồ Chí Minh 2013.JPG',author:'Phúc Hải (Prenn)',lic:'CC BY-SA 3.0',licUrl:'https://creativecommons.org/licenses/by-sa/3.0/'},
+    opera2: {q:'Saigon Opera House',i:1},
+    street: {q:'Nguyen Hue Walking Street',i:0,
+             file:'Ho Chi Minh City, Nguyen Hue Street, 2020-01 CN-01.jpg',author:'Steffen Schmitz',lic:'CC BY-SA 4.0',licUrl:'https://creativecommons.org/licenses/by-sa/4.0/'},
+    street3:{q:'Nguyen Hue Walking Street',i:2},
+    street4:{q:'Nguyen Hue Walking Street',i:3},
+    mall:   {q:'Saigon Centre Takashimaya',i:0},
+    cafe:   {q:'Dong Khoi Street Ho Chi Minh City',i:0},
+    church: {q:'Notre-Dame Cathedral Basilica of Saigon',i:0,
+             file:'Ho Chi Minh City, Notre-Dame Basilica, 2020-01 CN-02.jpg',author:'Steffen Schmitz',lic:'CC BY-SA 4.0',licUrl:'https://creativecommons.org/licenses/by-sa/4.0/'},
+    lamson: {q:'Lam Son Square Ho Chi Minh City',i:0},
+    union:  {q:'Union Square Ho Chi Minh City',i:0},
+    ubnd:   {q:'Ho Chi Minh City Hall',i:0},
+    vincom: {q:'Vincom Center Dong Khoi',i:0,
+             file:'Ho Chi Minh City, Vincom Center, 2020-01 CN-01.jpg',author:'Steffen Schmitz',lic:'CC BY-SA 4.0',licUrl:'https://creativecommons.org/licenses/by-sa/4.0/'}
+  };
+  var WM='https://commons.wikimedia.org/w/api.php',WMTTL=7*864e5,WMV='wm1:',RES={},FAIL={};
+  var ORIGIN='10.7767,106.7032';
+  function dirUrl(q){return 'https://www.google.com/maps/dir/?api=1&origin='+ORIGIN+'&destination='+encodeURIComponent(q)+'&travelmode=walking'}
+  function plain(h){
+    if(!h)return '';
+    var t=(typeof DOMParser!=='undefined')?new DOMParser().parseFromString(h,'text/html').body.textContent:h.replace(/<[^>]*>/g,'');
+    return t.replace(/\s+/g,' ').trim().slice(0,90);
+  }
+  function okUrl(u){return /^https:\/\//.test(u||'')?u:''}
+  function parseWM(j){
+    var pages=(j&&j.query&&j.query.pages)||{},arr=[];
+    Object.keys(pages).forEach(function(k){
+      var p=pages[k],ii=p.imageinfo&&p.imageinfo[0];
+      if(!ii||ii.mime!=='image/jpeg'||!ii.thumburl||ii.width<900)return;
+      var em=ii.extmetadata||{};
+      arr.push({idx:p.index||999,land:ii.width>=ii.height*1.15,title:(p.title||'').replace(/^File:/,''),
+        src:ii.thumburl,page:ii.descriptionurl||'',
+        author:plain(em.Artist&&em.Artist.value)||'Không rõ tác giả',
+        lic:plain(em.LicenseShortName&&em.LicenseShortName.value),licUrl:(em.LicenseUrl&&em.LicenseUrl.value)||''});
+    });
+    arr.sort(function(a,b){return a.idx-b.idx});
+    var land=arr.filter(function(x){return x.land});
+    return (land.length>=3?land:arr).slice(0,10);
+  }
+  function wmSearch(q){
+    var ck=WMV+'q:'+q;
+    try{var c=JSON.parse(localStorage.getItem(ck)||'null');if(c&&Date.now()-c.t<WMTTL)return Promise.resolve(c.v)}catch(e){}
+    var u=WM+'?action=query&format=json&origin=*&prop=imageinfo&iiprop=url|size|mime|extmetadata&iiurlwidth=1200&iiextmetadatafilter=Artist|LicenseShortName|LicenseUrl&generator=search&gsrnamespace=6&gsrlimit=20&gsrsearch='+encodeURIComponent(q+' filetype:bitmap');
+    return fetch(u).then(function(r){if(!r.ok)throw new Error(r.status);return r.json()}).then(function(j){
+      var v=parseWM(j);
+      if(v.length){try{localStorage.setItem(ck,JSON.stringify({t:Date.now(),v:v}))}catch(e){}}
+      return v;
+    });
+  }
+  function pinItem(sp){
+    return {title:sp.file,src:'https://commons.wikimedia.org/wiki/Special:FilePath/'+encodeURIComponent(sp.file)+'?width=1200',
+      page:'https://commons.wikimedia.org/wiki/File:'+encodeURIComponent(sp.file.replace(/ /g,'_')),
+      author:sp.author,lic:sp.lic,licUrl:sp.licUrl};
+  }
+  /* Ảnh ghim trước, ảnh tự tìm sau; hai ô không bao giờ dùng chung một ảnh. */
+  function assign(){
+    var used={},out={};
+    Object.keys(PQ).forEach(function(k){var sp=PQ[k];if(!sp.file)return;used[sp.file]=1;if(!FAIL[k])out[k]=pinItem(sp)});
+    Object.keys(PQ).forEach(function(k){
+      var sp=PQ[k];if(out[k])return;
+      var list=RES[sp.q];if(!list||!list.length)return;
+      for(var j=0;j<list.length;j++){var c=list[(sp.i+j)%list.length];if(!used[c.title]){used[c.title]=1;out[k]=c;return}}
+    });
+    return out;
+  }
+  function ensureSearch(q){
+    if(RES[q]!==undefined)return;
+    RES[q]=null;
+    wmSearch(q).then(function(v){RES[q]=v;applyPhotos()}).catch(function(){RES[q]=[]});
+  }
+  function applyPhotos(){
+    var A=assign();
+    document.querySelectorAll('img[data-photo]').forEach(function(im){
+      var key=im.getAttribute('data-photo'),p=A[key];
+      if(!p||im.getAttribute('src')===p.src)return;
+      im.classList.remove('broken');
+      im.onerror=function(){
+        var sp=PQ[key];
+        if(sp&&sp.file&&!FAIL[key]){FAIL[key]=1;ensureSearch(sp.q);applyPhotos()}
+        else im.classList.add('broken');
+      };
+      im.src=p.src;
+    });
+    renderCredits(A);
+  }
+  
+var LASTA={};
+function renderCredits(A){LASTA=A}
+function loadPhotos(){
+    applyPhotos();
+    var qs={};Object.keys(PQ).forEach(function(k){if(!PQ[k].file)qs[PQ[k].q]=1});
+    Object.keys(qs).forEach(ensureSearch);
+  }
+
+  
+
+/* ===== BỐ CỤC ===== */
+var CFG={
+ duoi:{den:['exits','weather','|','routes','pair'],tn:['routes','weather','exits','|','pair']},
+ tren:{den:['trains','entr','prep','|','routes','pair'],tn:['routes','weather','exits','|','trains','entr','prep']}};
+function rail(t){return '<div class="rail"><span>'+t+'</span></div>'}
+function mapBand(w,label,title){return '<div class="b f" style="flex-grow:1">'+rail(label)+'<div class="c"><div class="win" data-w="'+w+'" data-z="1.3"><iframe title="'+title+'"></iframe></div></div></div>'}
+function band(k){
+ switch(k){
+  case '|':return '<div class="sep"></div>';
+  case 'exits':return mapBand('exits',S.loc==='tren'?'Các lối vào ga':'Các lối ra chính',S.loc==='tren'?'Bản đồ các lối vào ga Nhà hát Thành phố':'Bản đồ các lối ra ga Nhà hát Thành phố');
+  case 'routes':return '<div class="b f" style="flex-grow:1.15">'+rail('Gợi ý tuyến trải nghiệm')+'<div class="c"><div class="win" data-w="routes" data-z="1.2"><iframe title="Bản đồ tuyến trải nghiệm quanh ga Nhà hát Thành phố"></iframe></div></div></div>';
+  case 'trains':return '<div class="b bt">'+rail('Bảng giờ tại ga')+'<div class="c" data-dyn="trains"></div></div>';
+  case 'entr':return mapBand('exits','Các lối vào ga','Bản đồ các lối vào ga Nhà hát Thành phố');
+  case 'weather':return '<div class="b bw">'+rail('Trên mặt đất lúc này')+'<div class="c"><img class="bgimg" data-photo="street4" alt=""><div class="shade"></div><div class="wc" data-dyn="weather"></div></div></div>';
+  case 'prep':return '<div class="b bs">'+rail('Trước khi đi tàu')+'<div class="c" data-dyn="prep"></div></div>';
+  case 'pair':return '<div class="b bp">'+rail('Quanh ga · Ưu đãi')+'<div class="c"><div class="tile"><div class="lab">Quanh ga Nhà hát</div><div class="in" data-dyn="nearby"></div></div><div class="tile"><div class="lab">Ưu đãi và sự kiện</div><div class="in" data-dyn="offers"></div></div></div></div>';
+ }}
+var S={loc:'tren',mode:'den'},T=0,st=document.getElementById('stage');
+function build(){
+ var c=CFG[S.loc][S.mode];
+ st.setAttribute('data-mode',S.mode);st.setAttribute('data-loc',S.loc);
+ st.innerHTML=
+  '<div class="hd"><img class="ph" data-photo="opera" alt=""><div class="m1">M1</div><div class="nm"><small>Tuyến Metro số 1 Bến Thành – Suối Tiên</small><h1>Ga Nhà hát Thành phố</h1><small>Ga ngầm số 2 · Quận 1</small></div><div class="clk"><b id="cl">--:--</b><span id="dt"></span></div></div>'+
+  '<div class="mb"><div class="lc">'+(S.loc==='tren'?'Trên hầm':'Dưới hầm')+'</div><div class="md'+(S.mode==='den'?' on':'')+'" data-m="den" role="button" tabindex="0">Đi để đến</div><div class="md'+(S.mode==='tn'?' on':'')+'" data-m="tn" role="button" tabindex="0">Đi để trải nghiệm</div></div>'+
+  c.map(band).join('')+
+  '<div class="ft"><span id="cr"></span><span>Ga hoạt động 05:00 – 23:00 hằng ngày</span></div>';
+ sizeWins();tick();loadPhotos();sync()}
+/* cửa sổ trực tiếp: nhúng nguyên trang bản đồ trai_nghiem_tuyen_final_1, phóng to để chữ dễ đọc */
+function xpDoc(kind){
+ var dark=false; /* bản đồ luôn ở nền trắng, kể cả Dưới hầm */
+ var s=document.getElementById('xpSrc').textContent.replace(/<\\\/script/g,'</script');
+ var css=kind==='exits'
+  ?'body.exits-only .app{grid-template-columns:minmax(0,1fr) 42%;grid-template-rows:minmax(0,1fr)}body.exits-only .stage{order:1}body.exits-only .panel{order:2;border-right:0;border-left:1px solid var(--ink);max-height:none}body.exits-only .head,body.exits-only .tabs,body.exits-only #viewRoutes,body.exits-only .seg,body.exits-only .keybox{display:none!important}body.exits-only .exit{padding:9px 14px;gap:10px;grid-template-columns:34px minmax(0,1fr)}body.exits-only .num{width:34px;height:34px;font-size:12px}body.exits-only .exit-note,body.exits-only .coord{display:none}body.exits-only .exit-title{font-size:14px}'
+  :'.head,.tabs,.seg,.keybox{display:none!important}.panel{max-height:none}.ask{padding:12px 16px 8px}';
+ s=s.replace('</head>',function(){return '<style>'+css+'html,body{overflow:hidden}</style></head>'});
+ if(kind==='exits')s=s.replace('<body>','<body class="exits-only">');
+ var js='window.addEventListener("load",function(){setTimeout(function(){'+(kind==='routes'?'var t=document.getElementById("tabRoutes");if(t)t.click();':'')+(dark?'var d=document.getElementById("darkBtn");if(d)d.click();':'')+'},60)});';
+ var i=s.lastIndexOf('</body>');
+ return i<0?s:s.slice(0,i)+'<script>'+js+'<\/script>'+s.slice(i)}
+function sizeWins(){
+ document.querySelectorAll('.win').forEach(function(w){
+  var z=parseFloat(w.dataset.z)||1,f=w.querySelector('iframe');
+  f.style.width=(w.clientWidth/z)+'px';f.style.height=(w.clientHeight/z)+'px';f.style.transform='scale('+z+')';
+  f.srcdoc=xpDoc(w.dataset.w)})}
+/* ===== nội dung động ===== */
+function dTrains(n){
+ var open=n.min>=300&&n.min<=closeMin(n.dow);
+ var cols=[['Hướng Ga Bến xe Suối Tiên',0],['Hướng Ga Bến Thành',3]].map(function(p){
+  var t=nextDep(n.min,n.dow,p[1]),e,s;
+  if(t===null||!open){e='05:00<small>mai</small>';s='Chuyến đầu tiên dự kiến 05:00'}
+  else{var d=t-n.min;e=(d<=0?'Vào ga':d)+(d<=0?'':'<small>phút</small>');s='Dự kiến '+clock(t)+' · giãn cách ~'+hw(t)+' phút'}
+  return '<div class="tcol"><div class="d">'+p[0]+'</div><div class="e">'+e+'</div><div class="s">'+s+'</div></div>'}).join('');
+ return '<div class="tg">'+cols+'</div><div class="tf"><span class="dot'+(open?'':' off')+'"></span><b>'+(open?'Đang trong giờ chạy tàu':'Ngoài giờ chạy tàu')+'</b><span>Giờ tàu dự kiến tính theo giãn cách công bố, chưa phải dữ liệu vị trí tàu thực tế.</span></div>'}
+function dWeather(n){
+ var valid=fcValid(n),temp,range,lab,meta;
+ if(!valid){temp='--';range='';lab='Dự báo đã cũ (ngày '+fmtDate(FC.date)+')';meta=WXBUSY?'Đang tải dự báo mới cho hôm nay...':'Chưa tải được dự báo mới, trang sẽ thử lại tự động.'}
+ else{var s=slotAt(n.min);temp='~'+tempAt(n.min)+'°C';range='dự báo '+FC.minTxt+'° – '+FC.maxTxt+'°';lab=s.label;
+  meta='Gió '+FC.wind+'. '+(FC.warn?FC.warn+' ':'')+(FC.tH?'Nhiệt độ theo dự báo từng giờ. ':'Nhiệt độ hiện tại là ước tính theo đường biến thiên trong ngày. ')+(FC.live?'Tự cập nhật lúc '+FC.updated+' ngày '+fmtDate(FC.date)+' từ ':'Dự báo lấy lúc '+FC.updated+' ngày '+fmtDate(FC.date)+' từ ')+FC.srcs.map(function(x){return x[0]}).join(' và ')+'.'}
+ return '<div class="tp"><b>'+temp+'</b><span>'+range+'</span></div><div><div class="lb">'+esc(lab)+'</div><div class="ad"><em>Gợi ý cho bạn</em>'+esc(adviceFor(n.min,valid))+'</div><div class="mt">'+esc(meta)+'</div></div>'}
+function pg(a,per){var n=Math.max(1,Math.ceil(a.length/per));return {p:T%n,n:n}}
+function dNearby(){
+ var g=pg(ATTRS,1),x=ATTRS[g.p];
+ return '<img class="bgimg" data-photo="'+x[3]+'" alt=""><div class="shade"></div><div class="pg">'+(g.p+1)+'/'+g.n+'</div><div class="tx">'+(x[0]?'<span class="tag">'+esc(x[0])+'</span>':'')+'<h3>'+esc(x[1])+'</h3><p>'+esc(x[2])+'</p></div>'}
+function dOffers(n){
+ var g=pg(OFFERS,1),o=OFFERS[g.p];
+ var started=dayDiff(o.from,n.date)>=0,left=dayDiff(n.date,o.to),s,on=true;
+ if(!started){s='Sắp bắt đầu'}else if(left<0){s='Đã kết thúc';on=false}else if(left<=7){s='Còn '+(left===0?'hôm nay':left+' ngày')}else{s='Đang diễn ra'}
+ return '<img class="bgimg" data-photo="'+o.img+'" alt=""><div class="shade"></div><div class="pg">'+(g.p+1)+'/'+g.n+'</div><div class="tx"><span class="tag">'+esc(o.name)+'</span><h3>'+esc(o.title)+'</h3><p>'+esc(o.desc)+'</p><span class="st'+(on?' on':'')+'">'+s+'</span> <span style="font-size:16px;opacity:.85;margin-left:6px">'+fmtDate(o.from)+' – '+fmtDate(o.to)+'</span></div>'}
+function dPrep(){
+ var i=T%STEPS.length,s=STEPS[i];
+ return '<div class="pc"><div class="pn">'+(i+1)+'</div><div><b>'+esc(s[0])+'</b><p>'+esc(s[1])+'</p></div></div><div class="pbar">'+STEPS.map(function(_,k){return '<i'+(k===i?' class="on"':'')+'></i>'}).join('')+'</div>'}
+var DYN={trains:dTrains,weather:dWeather,nearby:dNearby,offers:dOffers,prep:dPrep};
+function tick(){
+ var n=nowVN(),e=$('#cl');if(e){e.textContent=clock(n.min);$('#dt').textContent=DOW[n.dow]+', '+fmtDate(n.date)}
+ document.querySelectorAll('[data-dyn]').forEach(function(el){var k=el.dataset.dyn,h=DYN[k](n);if(el.dataset.last!==h){el.innerHTML=h;el.dataset.last=h}});
+ applyPhotos();credit()}
+function credit(){
+ var keys={},out=[];document.querySelectorAll('img[data-photo]:not(.broken)').forEach(function(i){keys[i.getAttribute('data-photo')]=1});
+ Object.keys(keys).forEach(function(k){var p=LASTA[k];if(p&&out.map(function(o){return o.title}).indexOf(p.title)<0)out.push(p)});
+ var el=$('#cr');if(!el)return;if(!out.length){el.textContent='';return}
+ var p=out[T%out.length];el.textContent='Ảnh: '+p.title+' · '+p.author+(p.lic?' · '+p.lic:'')+' · Wikimedia Commons'}
+function sync(){
+ document.querySelectorAll('#gLoc button').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.v===S.loc)});
+ document.querySelectorAll('#gMode button').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.v===S.mode)})}
+function setState(l,m){S.loc=l;S.mode=m;try{history.replaceState(null,'','#'+l+'-'+m)}catch(e){}T=0;build()}
+st.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('.mb .md[data-m]');if(b&&b.dataset.m!==S.mode)setState(S.loc,b.dataset.m)});
+st.addEventListener('keydown',function(e){if(e.key!=='Enter'&&e.key!==' ')return;var b=e.target.closest&&e.target.closest('.mb .md[data-m]');if(b){e.preventDefault();if(b.dataset.m!==S.mode)setState(S.loc,b.dataset.m)}});
+function parseHash(){var m=/^#(tren|duoi)-(den|tn)$/.exec(location.hash);if(m){S.loc=m[1];S.mode=m[2]}}
+document.getElementById('gLoc').onclick=function(e){if(e.target.dataset.v)setState(e.target.dataset.v,S.mode)};
+document.getElementById('gMode').onclick=function(e){if(e.target.dataset.v)setState(S.loc,e.target.dataset.v)};
+window.addEventListener('hashchange',function(){parseHash();setState(S.loc,S.mode)});
+var tm=null;document.getElementById('auto').onchange=function(e){clearInterval(tm);if(e.target.checked)tm=setInterval(function(){setState(S.loc,S.mode==='den'?'tn':'den')},45000)};
+document.getElementById('fs').onclick=function(){try{(document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen())}catch(e){}};
+document.addEventListener('keydown',function(e){if(e.key==='h'||e.key==='H'){var c=document.getElementById('ctl');c.style.display=c.style.display==='none'?'':'none';scale()}});
+function scale(){var vp=document.getElementById('vp'),w=document.getElementById('wrap'),r=vp.getBoundingClientRect(),
+ s=Math.min((r.width-20)/1080,(r.height-20)/1920);if(!(s>0))s=.3;w.style.width=1080*s+'px';w.style.height=1920*s+'px';st.style.transform='scale('+s+')'}
+window.addEventListener('resize',scale);
+parseHash();scale();build();refreshWX(true);
+setInterval(function(){var n=nowVN(),e=$('#cl');if(e)e.textContent=clock(n.min)},1000);
+setInterval(function(){tick()},15000);
+setInterval(function(){T++;tick()},12000);
+setInterval(function(){var n=nowVN();if(!fcValid(n))refreshWX(true);else refreshWX(false)},60000);
+})();
+</script>
+</body></html>
